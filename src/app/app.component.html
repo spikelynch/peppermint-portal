@@ -1,0 +1,38 @@
+
+<div class="container-fluid">
+  <div class="row">
+    <h1 class="col-md-12">
+      <p class="text-center">Peppermint Portal</p>
+    </h1>
+  </div>
+  <div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" aria-label="Text input with dropdown button" (keyup.enter)="search()">
+        <div class="input-group-append">
+          <button (click)="search()" class="btn btn-outline-secondary dropdown-toggle" type="submit" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Search Dataset
+          </button>
+          <div class="dropdown-menu">
+            <button class="dropdown-item" (click)="search()">Search Dataset</button>
+            <button class="dropdown-item" (click)="search()">Search All</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-1"></div>
+  </div>
+  <div class="row" *ngIf="searchResults">
+    <div class="col-md-12">
+      <div class="card text-center">
+        <div class="card-header">
+          Search Results
+        </div>
+        <div class="card-body">
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
