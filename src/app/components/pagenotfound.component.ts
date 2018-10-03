@@ -1,28 +1,17 @@
 import { Component } from '@angular/core';
-import { TranslationService } from './services/translation-service';
-import { ConfigService } from './services/config-service';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/operator/mergeMap';
-import * as _ from "lodash";
+import { TranslationService } from '../services/translation-service';
+import { ConfigService } from '../services/config-service';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: 'page-not-found',
+  templateUrl: './pagenotfound.component.html'
 })
-export class AppComponent {
+export class PageNotFoundComponent {
   isLoading: boolean = true;
-  searchResults: any;
-  searchMode: any = 'search-dataset';
   config: any;
   translatorReady: boolean;
-  searchText: string;
-  startRows: number = 0;
-  searchCardClass: string;
 
-  constructor(protected translationService: TranslationService,
-    protected configService: ConfigService
-   ) {
+  constructor(protected translationService: TranslationService, protected configService: ConfigService) {
     this.initTranslator(translationService);
     this.initConfig();
   }

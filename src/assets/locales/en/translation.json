@@ -1,0 +1,9 @@
+{
+  "title": "Peppermint Portal",
+  "search-text": "Search",
+  "search-dataset": "Search Dataset",
+  "search-people": "Search People",
+  "loading-alt-text": "Loading...",
+  "search-results": "Search Results: {numFound}",
+  "page-not-found": "Apologies, this page seems to be missing."
+}

@@ -1,0 +1,37 @@
+<div class="row">
+  <div class="col-md-1"></div>
+  <div class="col-md-10">
+    <div class="input-group mb-3">
+      <input [(ngModel)]="searchText" type="text" class="form-control" [attr.aria-label]="'search-text' | translate" [attr.placeholder]="'search-text' | translate" (keyup.enter)="search()">
+      <div class="input-group-append">
+        <button [innerHTML]="searchMode | translate" (click)="search()" class="btn btn-outline-secondary" type="submit"></button>
+        <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+           <span class="sr-only">Toggle Search Type</span>
+         </button>
+        <div class="dropdown-menu">
+          <button *ngFor="let mode of config.searchModes" class="dropdown-item" (click)="setSearchMode(mode)" [innerHTML]="mode | translate"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-1"></div>
+</div>
+<div class="row" *ngIf="searchResults">
+  <div class="col-md-12">
+    <div class="card text-center">
+      <div class="card-header {{ searchCardClass }}" [innerHTML]="'search-results' | translate: { numFound: this.searchResults.numFound }"></div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item" *ngFor="let searchRes of getSearchResultForDisplay()">
+            <ng-container *ngFor="let dispLine of searchRes.displayLines" >
+              <div *ngIf="!dispLine.link" [innerHTML]="dispLine.template"></div>
+              <div *ngIf="dispLine.link">
+                <a [routerLink]=[searchRes[dispLine.field]] [innerHTML]="dispLine.template"></a>
+              </div>
+            </ng-container>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

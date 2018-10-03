@@ -1,0 +1,25 @@
+{
+  "searchModes": [
+    "search-dataset",
+    "search-people"
+  ],
+  "search-dataset": {
+    "solrUrl": "http://localhost:8980/solr/dataset/select",
+    "mainQuery": "?q=record_type_s:dataset AND (<%= queryFields %>)<%= fieldList %>,[child%20parentFilter=record_type_s:dataset]&rows=<%= rows %>&start=<%= start %>",
+    "queryFieldsBoolOperator": " OR ",
+    "queryFieldValPrefix": "",
+    "queryFieldValSuffix": "",
+    "queryFields": [
+      "http___schema.org_name",
+      "http___schema.org_description",
+      "http___schema.org_keywords",
+      "http___schema.org_identifier"
+    ],
+    "fieldList": "&fl=*",
+    "rows": 20
+  },
+  "defaultSearchResultDisplay": [
+    {"link": true, "field": "routerLink", "template": "<%= data['http___schema.org_name'][0] %>" },
+    {"template": "<p><%= data['http___schema.org_description'][0] %></p>"}
+  ]
+}
