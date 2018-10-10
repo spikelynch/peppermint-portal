@@ -5,21 +5,40 @@
   ],
   "search-dataset": {
     "solrUrl": "http://localhost:8980/solr/dataset/select",
-    "mainQuery": "?q=record_type_s:dataset AND (<%= queryFields %>)<%= fieldList %>,[child%20parentFilter=record_type_s:dataset]&rows=<%= rows %>&start=<%= start %>",
+    "mainQuery": "?q=record_type_s:dataset AND (<%= queryFields %>)<%= fieldList %>,[child%20parentFilter=record_type_s:dataset]&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
     "queryFieldsBoolOperator": " OR ",
     "queryFieldValPrefix": "",
     "queryFieldValSuffix": "",
     "queryFields": [
-      "http___schema.org_name",
-      "http___schema.org_description",
-      "http___schema.org_keywords",
-      "http___schema.org_identifier"
+      "https___schema.org_name",
+      "https___schema.org_description",
+      "https___schema.org_keywords",
+      "https___schema.org_identifier"
     ],
     "fieldList": "&fl=*",
-    "rows": 20
+    "rows": 20,
+    "searchFilters": [
+      {
+        "name": "https___schema.org_keywords_facet",
+        "title": "search-refine-keywords",
+        "type": "facet",
+        "typeLabel": null,
+        "alwaysActive": true
+      },
+      {
+        "name": "https___schema.org_publisher_facet",
+        "title": "search-refine-publisher",
+        "type": "facet",
+        "typeLabel": null,
+        "alwaysActive": true
+      }
+    ]
   },
   "defaultSearchResultDisplay": [
-    {"link": true, "field": "routerLink", "template": "<%= data['http___schema.org_name'][0] %>" },
-    {"template": "<p><%= data['http___schema.org_description'][0] %></p>"}
+    {"link": true, "type": "external", "field": "id", "template": "<%= data['https___schema.org_name'][0] %>", "class":"text-justify" },
+    {"template": "<p></p>" },
+    {"template": "<p><%= data['https___schema.org_description'][0] %></p>",  "class":"text-justify" },
+    {"template": "<p></p>" },
+    {"template": "<p>Published: <%= moment(data['https___schema.org_datePublished'][0]).format('D-M-Y') %> <%= !_.isEmpty(utilService.getChildDocWithType(data, 'https://schema.org/license', null)) ? '| License: ' + utilService.getChildDocWithType(data, 'https://schema.org/license')['https://schema.org/name'][0] : '' %></p>",  "class":"text-justify" }
   ]
 }

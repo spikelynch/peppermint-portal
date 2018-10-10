@@ -19,15 +19,166 @@
 
 import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
+import * as _ from 'lodash';
+
+export interface SearchFacetValue {
+  value: any;
+  count: number;
+}
+export interface SearchFacet {
+  name: string;
+  value: SearchFacetValue[];
+}
 
 export interface SearchResult {
   rawResponse: any;
   numFound: number;
   start:number;
   results: any[];
+  facets: SearchFacet[];
 }
 
 export interface SearchService {
-  search(searchText: string, searchMode: string, start:number, rows:number): Observable<any>;
+  search(param:SearchParams): Observable<any>;
   extractData(res: Response, parentField: any): SearchResult;
+}
+
+export class SearchRefiner {
+  name: string;
+  title: string;
+  type: string;
+  value: any;
+  alwaysActive: boolean;
+  typeLabel: string;
+  activeValue: any;
+
+  constructor(opts: any = {}) {
+    this.name = opts.name;
+    this.title = opts.title;
+    this.type = opts.type;
+    this.value = opts.value;
+    this.typeLabel = opts.typeLabel;
+    this.alwaysActive = opts.alwaysActive;
+  }
+
+  setCurrentValue(value: any) {
+    if (this.type == "facet") {
+      this.activeValue = value;
+    } else {
+      this.value = value;
+    }
+  }
+}
+
+export class SearchParams {
+  recordType: string;
+  searchText: string;
+  activeRefiners: any[];
+  refinerConfig: SearchRefiner[];
+  rows: number;
+  start: number;
+
+  constructor(recType: string) {
+    this.recordType = recType;
+    this.activeRefiners = [];
+    this.clear();
+  }
+
+  clear() {
+    this.searchText = null;
+    _.remove(this.activeRefiners, refiner => {
+      refiner.value = null;
+      refiner.activeValue = null;
+      return !refiner.alwaysActive;
+    });
+  }
+
+  getRefinerConfig(name: string) {
+    return _.find(this.refinerConfig, (config) => {
+      return config.name == name;
+    });
+  }
+
+  setRefinerConfig(config: SearchRefiner[]) {
+    this.refinerConfig = config;
+    // parse through and activate those set as active...
+    _.forEach(this.refinerConfig, (refinerConfig) => {
+      if (refinerConfig.alwaysActive) {
+        this.addActiveRefiner(refinerConfig);
+      }
+    });
+  }
+
+  getRefinerQuery() {
+    let refinerValues = [];
+    _.forEach(this.activeRefiners, (refiner: SearchRefiner) => {
+      if (refiner.type == "facet") {
+        refinerValues.push(`refiner_${refiner.name}=${_.isEmpty(refiner.activeValue) ? '' : refiner.activeValue}`)
+      } else {
+        refinerValues.push(`refiner_${refiner.name}=${_.isEmpty(refiner.value) ? '' : refiner.value}`);
+      }
+    });
+    return refinerValues.join(';');
+  }
+
+  getRefinerConfigs() {
+    return this.refinerConfig;
+  }
+
+  addActiveRefiner(refiner: SearchRefiner) {
+    const existingRefiner = _.find(this.activeRefiners, (activeRefiner: SearchRefiner) => {
+      return activeRefiner.name == refiner.name;
+    });
+    if (existingRefiner) {
+      existingRefiner.value = refiner.value;
+    } else {
+      this.activeRefiners.push(refiner);
+    }
+  }
+
+  parseRefiner(queryStr:string) {
+    queryStr = decodeURI(queryStr);
+    let refinerValues = {};
+    _.forEach(queryStr.split(';'), (q)=> {
+      const qObj = q.split('=');
+      if (_.startsWith(qObj[0], "refiner_")) {
+        const refinerName = qObj[0].split('refiner_')[1];
+        refinerValues[refinerName] = qObj[1];
+      }
+    });
+    _.forOwn(refinerValues, (value, name) => {
+      const config = this.getRefinerConfig(name);
+      config.setCurrentValue(value);
+      this.addActiveRefiner(config);
+    });
+  }
+
+  filterActiveRefinersWithNoData() {
+    const removed = _.remove(this.activeRefiners, (refiner: SearchRefiner) => {
+      const value = refiner.type == 'exact' ? refiner.value : refiner.activeValue;
+      return  !refiner.alwaysActive && (_.isEmpty(value) || _.isUndefined(value));
+    });
+  }
+
+  hasActiveRefiners() {
+    let hasActive = false;
+    _.forEach(this.activeRefiners, (refiner: SearchRefiner) => {
+      if (!hasActive && (!_.isEmpty(refiner.value))) {
+        hasActive = true;
+      }
+    });
+    return hasActive;
+  }
+
+  setFacetValues(facets: SearchFacet[]) {
+    _.forEach(facets, (facet: any) => {
+      const refiner = _.find(this.activeRefiners, (refinerConfig: SearchRefiner) => {
+        return refinerConfig.name == facet.name;
+      });
+      if (refiner) {
+        refiner.value = facet.value;
+      }
+    });
+  }
+
 }

@@ -7,10 +7,12 @@ import { FormsModule} from "@angular/forms";
 import { TranslateI18NextModule } from 'ngx-i18next';
 import { TranslationService } from './services/translation-service';
 import { ConfigService } from './services/config-service';
+import { UtilService } from './services/util-service';
 import { SolrSearchService } from './services/solrsearch-service';
 import { PageNotFoundComponent } from './components/pagenotfound.component';
 import { SearchComponent } from './components/search.component';
 import { DetailComponent } from './components/detail.component';
+import { SearchRefinerComponent } from './components/search-refiner.component';
 import { AppComponent } from './app.component';
 
 // route config
@@ -26,6 +28,7 @@ const appRoutes: Routes = [
     PageNotFoundComponent,
     SearchComponent,
     DetailComponent,
+    SearchRefinerComponent,
     AppComponent
   ],
   imports: [
@@ -36,6 +39,7 @@ const appRoutes: Routes = [
     FormsModule
   ],
   providers: [
+    UtilService,
     TranslationService,
     ConfigService,
     SolrSearchService

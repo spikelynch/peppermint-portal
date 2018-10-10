@@ -1,0 +1,27 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header text-center bg-success">
+        {{ refinerConfig.title | translate }}
+      </div>
+      <div class="card-body">
+        <div *ngIf="refinerConfig.typeLabel"> {{ refinerConfig.typeLabel | translate }} </div>
+        <div class="input-group" *ngIf="refinerConfig.type == 'exact'">
+          <input [(ngModel)]="refinerConfig.value" class="form-control" (keyup.enter)="applyFilter($event)">
+          <span class="input-group-btn">
+            <button [disabled]="isSearching || !hasValue()" class="btn btn-primary" type='button' (click)="applyFilter($event)">{{ 'search-refine-apply-filter' | translate }}</button>
+          </span>
+        </div>
+        <div *ngIf="refinerConfig.type == 'facet'">
+          <ul class="list-unstyled">
+            <ng-container *ngFor="let facetValue of refinerConfig.value">
+              <li *ngIf="facetValue.count > 0 && facetValue.value">
+                <a href="" (click)="applyFilter($event, facetValue.value)"> {{ facetValue.value }} ({{ facetValue.count }})</a>
+              </li>
+            </ng-container>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

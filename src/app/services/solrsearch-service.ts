@@ -25,7 +25,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
 import * as _ from "lodash";
 import * as luceneEscapeQuery from 'lucene-escape-query';
-import { SearchService, SearchResult } from './search-service';
+import { SearchService, SearchResult, SearchParams, SearchRefiner, SearchFacet, SearchFacetValue } from './search-service';
 /**
  * Handles SOLR searches
  *
@@ -46,18 +46,37 @@ export class SolrSearchService implements SearchService {
     });
   }
 
-  public search(searchText: string, searchMode: string, start:number = 0, rows:number = 20) {
-    const configSearch = this.config[searchMode];
+  public search(searchParam: SearchParams) {
+    const searchText = searchParam.searchText;
+    const recordType = searchParam.recordType;
+    const start = searchParam.start;
+    const rows = searchParam.rows;
+
+    const configSearch = this.config[recordType];
     const qflist = [];
     _.each(configSearch.queryFields, (qf) => {
       qflist.push(`${qf}:${configSearch.queryFieldValPrefix}${luceneEscapeQuery.escape(searchText)}${configSearch.queryFieldValSuffix}`);
     });
+    const facetList = [];
+    _.each(searchParam.activeRefiners, (refiner: SearchRefiner) => {
+      switch(refiner.type) {
+        case "facet":
+          let rq = `facet.field=${refiner.name}`;
+          if (!_.isEmpty(refiner.activeValue)) {
+            rq = `${rq}&fq=${refiner.name}:${luceneEscapeQuery.escape(refiner.activeValue)}`;
+          }
+          facetList.push(rq);
+          break;
+      }
+    });
+
     const opts = {
       imports: {
         start: start,
         rows: rows,
         fieldList: configSearch.fieldList,
-        queryFields: qflist.length > 0 ? `${qflist.join(configSearch.queryFieldsBoolOperator)}` : ''
+        queryFields: qflist.length > 0 ? `${qflist.join(configSearch.queryFieldsBoolOperator)}` : '',
+        facetFields: facetList.length > 0 ? `&facet=true&${facetList.join('&')}` : ''
       }
     }
     const url = `${configSearch.solrUrl}${_.template(configSearch.mainQuery, opts)()}`;
@@ -75,11 +94,31 @@ export class SolrSearchService implements SearchService {
   }
 }
 
+export class SolrFacetValue implements SearchFacetValue {
+  value: any;
+  count:number;
+  constructor(value: any, count: number) {
+    this.value = value;
+    this.count = count;
+  }
+}
+
+export class SolrFacet implements SearchFacet {
+  name: string;
+  value: SearchFacetValue[];
+
+  constructor(name: string, value: SearchFacetValue[]) {
+    this.name = name;
+    this.value = value;
+  }
+}
+
 export class SolrSearchResult implements SearchResult {
   rawResponse: any;
   numFound: number;
   start:number;
   results: any[];
+  facets: SearchFacet[];
 
   constructor(httpResp: any) {
     // parse the SOLR response
@@ -87,5 +126,18 @@ export class SolrSearchResult implements SearchResult {
     this.numFound = httpResp.response.numFound;
     this.start = httpResp.response.start;
     this.results = httpResp.response.docs;
+    if (httpResp.facet_counts) {
+      this.facets = [];
+      _.forOwn(httpResp.facet_counts.facet_fields, (facet_field_val: any, facet_field_name:any) => {
+        const values = [];
+        for (var i=0; i < facet_field_val.length; ) {
+          const facet_val = facet_field_val[i++];
+          const facet_count = facet_field_val[i++];
+          values.push(new SolrFacetValue(facet_val, facet_count));
+        }
+        const searchFacet = new SolrFacet(facet_field_name, values);
+        this.facets.push(searchFacet);
+      });
+    }
   }
 }

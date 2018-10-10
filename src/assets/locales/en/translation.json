@@ -5,5 +5,8 @@
   "search-people": "Search People",
   "loading-alt-text": "Loading...",
   "search-results": "Search Results: {numFound}",
-  "page-not-found": "Apologies, this page seems to be missing."
+  "page-not-found": "Apologies, this page seems to be missing.",
+  "search-refine-keywords": "Keywords",
+  "search-refine-apply-filter": "Go",
+  "search-refine-publisher": "Publisher"
 }
