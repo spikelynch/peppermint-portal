@@ -93,6 +93,7 @@ export class SearchComponent {
     return this.searchService.search(this.currentParam).flatMap((res:any) => {
       const data = this.searchService.extractData(res, null);
       console.log(data);
+      this.isSearching = false;
       return Observable.of(data);
     });
   }

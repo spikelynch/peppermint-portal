@@ -17,6 +17,12 @@
   <div class="col-md-1"></div>
 </div>
 
+
+<div *ngIf="isSearching" class="mx-auto" style="width: 200px;">
+  <img src="assets/loading.svg" alt="Searching...">
+</div>
+
+
 <div class="row" *ngIf="searchResults">
   <ng-container *ngIf="searchResults.numFound > 0 else emptyResultsBlock">
     <div class="col-md-2">

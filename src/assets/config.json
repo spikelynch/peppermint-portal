@@ -10,16 +10,13 @@
     "queryFieldValPrefix": "",
     "queryFieldValSuffix": "",
     "queryFields": [
-      "https___schema.org_name",
-      "https___schema.org_description",
-      "https___schema.org_keywords",
-      "https___schema.org_identifier"
+      "main_search"
     ],
     "fieldList": "&fl=*",
     "rows": 20,
     "searchFilters": [
       {
-        "name": "https___schema.org_keywords_facet",
+        "name": "https___schema.org_keywords_facet_multi",
         "title": "search-refine-keywords",
         "type": "facet",
         "typeLabel": null,
