@@ -1,9 +1,9 @@
 {
-  "searchModes": [
-    "search-dataset",
-    "search-people"
+  "recordTypes": [
+    "dataset",
+    "person"
   ],
-  "search-dataset": {
+  "dataset": {
     "solrUrl": "http://localhost:8980/solr/dataset/select",
     "mainQuery": "?q=record_type_s:dataset AND (<%= queryFields %>)<%= fieldList %>,[child%20parentFilter=record_type_s:dataset]&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
     "queryFieldsBoolOperator": " OR ",
@@ -16,14 +16,14 @@
     "rows": 20,
     "searchFilters": [
       {
-        "name": "https___schema.org_keywords_facet_multi",
+        "name": "https___schema_org_keywords_facet_multi",
         "title": "search-refine-keywords",
         "type": "facet",
         "typeLabel": null,
         "alwaysActive": true
       },
       {
-        "name": "https___schema.org_publisher_facet",
+        "name": "https___schema_org_publisher_facet",
         "title": "search-refine-publisher",
         "type": "facet",
         "typeLabel": null,
@@ -31,11 +31,44 @@
       }
     ]
   },
+  "person": {
+    "solrUrl": "http://localhost:8980/solr/dataset/select",
+    "mainQuery": "?q=record_type_s:person AND (<%= queryFields %>)<%= fieldList %>&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
+    "queryFieldsBoolOperator": " OR ",
+    "queryFieldValPrefix": "",
+    "queryFieldValSuffix": "",
+    "queryFields": [
+      "main_search"
+    ],
+    "fieldList": "&fl=*",
+    "rows": 20,
+    "searchFilters": [
+      {
+        "name": "https___schema_org_funders_facet",
+        "title": "search-refine-funders",
+        "type": "facet",
+        "typeLabel": null,
+        "alwaysActive": true
+      },
+      {
+        "name": "https___schema_org_birthPlace_facet",
+        "title": "search-refine-birthPlace",
+        "type": "facet",
+        "typeLabel": null,
+        "alwaysActive": true
+      }
+    ],
+    "searchResultDisplay": [
+      {"link": true, "type": "external", "field": "id", "template": "<%= data['https___schema_org_name'] %>", "class":"text-justify" },
+      {"template": "<p></p>" },
+      {"template": "<p><%= data['https___schema_org_description'] %></p>",  "class":"text-justify" }
+    ]
+  },
   "defaultSearchResultDisplay": [
-    {"link": true, "type": "external", "field": "id", "template": "<%= data['https___schema.org_name'][0] %>", "class":"text-justify" },
+    {"link": true, "type": "external", "field": "id", "template": "<%= data['https___schema_org_name'] %>", "class":"text-justify" },
     {"template": "<p></p>" },
-    {"template": "<p><%= data['https___schema.org_description'][0] %></p>",  "class":"text-justify" },
+    {"template": "<p><%= data['https___schema_org_description'] %></p>",  "class":"text-justify" },
     {"template": "<p></p>" },
-    {"template": "<p>Published: <%= moment(data['https___schema.org_datePublished'][0]).format('D-M-Y') %> <%= !_.isEmpty(utilService.getChildDocWithType(data, 'https://schema.org/license', null)) ? '| License: ' + utilService.getChildDocWithType(data, 'https://schema.org/license')['https://schema.org/name'][0] : '' %></p>",  "class":"text-justify" }
+    {"template": "<p>Published: <%= moment(data['https___schema_org_datePublished'][0]) %> <%= !_.isEmpty(utilService.getChildDocWithType(data, 'https___schema_org_license', null)) ? '| License: ' + utilService.getChildDocWithType(data, 'https___schema_org_license')['https___schema_org_name'][0] : '' %></p>",  "class":"text-justify" }
   ]
 }

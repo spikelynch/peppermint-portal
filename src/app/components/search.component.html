@@ -4,12 +4,12 @@
     <div class="input-group mb-3">
       <input [(ngModel)]="currentParam.searchText" type="text" class="form-control" [attr.aria-label]="'search-text' | translate" [attr.placeholder]="'search-text' | translate" (keyup.enter)="goSearch()">
       <div class="input-group-append">
-        <button [disabled]="isSearching || !currentParam.searchText" [innerHTML]="searchMode | translate" (click)="goSearch()" class="btn btn-outline-secondary" type="submit"></button>
+        <button [disabled]="isSearching || !currentParam.searchText" [innerHTML]="('search-'+recordType) | translate" (click)="goSearch()" class="btn btn-outline-secondary" type="submit"></button>
         <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
            <span class="sr-only">Toggle Search Type</span>
          </button>
         <div class="dropdown-menu">
-          <button *ngFor="let mode of config.searchModes" class="dropdown-item" (click)="setSearchMode(mode)" [innerHTML]="mode | translate"></button>
+          <button *ngFor="let rType of config.recordTypes" class="dropdown-item" (click)="setRecordType(rType)" [innerHTML]="('search-' + rType) | translate"></button>
         </div>
       </div>
     </div>

@@ -76,7 +76,7 @@ export class SearchParams {
   activeRefiners: any[];
   refinerConfig: SearchRefiner[];
   rows: number;
-  start: number;
+  start: number = 0;
 
   constructor(recType: string) {
     this.recordType = recType;

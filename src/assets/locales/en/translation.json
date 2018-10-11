@@ -2,11 +2,13 @@
   "title": "Peppermint Portal",
   "search-text": "Search",
   "search-dataset": "Search Dataset",
-  "search-people": "Search People",
+  "search-person": "Search Person",
   "loading-alt-text": "Loading...",
   "search-results": "Search Results: {numFound}",
   "page-not-found": "Apologies, this page seems to be missing.",
   "search-refine-keywords": "Keywords",
   "search-refine-apply-filter": "Go",
-  "search-refine-publisher": "Publisher"
+  "search-refine-publisher": "Publisher",
+  "search-refine-funders": "Funders",
+  "search-refine-birthPlace": "Birth Place"
 }

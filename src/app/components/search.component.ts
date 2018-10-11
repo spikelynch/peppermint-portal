@@ -18,7 +18,7 @@ import * as moment from 'moment';
 })
 export class SearchComponent {
   searchResults: any;
-  searchMode: any = 'search-dataset';
+  recordType: any = 'dataset';
   config: any;
   translatorReady: boolean;
   startRows: number = 0;
@@ -39,11 +39,11 @@ export class SearchComponent {
     this.paramMap = {};
   }
 
-  goSearch(sMode: any = null) {
-    if (sMode) {
-      this.currentParam.recordType = sMode;
+  goSearch(rType: any = null) {
+    if (rType) {
+      this.recordType = rType;
     }
-    this.router.navigate(['search'], {queryParams: {searchText: this.currentParam.searchText, recordType: this.currentParam.recordType, rows: this.currentParam.rows, start: this.currentParam.start, refiner: this.currentParam.getRefinerQuery()}} );
+    this.router.navigate(['search'], {queryParams: {searchText: this.currentParam.searchText, recordType: this.recordType, rows: this.currentParam.rows, start: this.currentParam.start, refiner: this.currentParam.getRefinerQuery()}} );
   }
 
   initSearchConfig(recordType, config) {
@@ -61,19 +61,30 @@ export class SearchComponent {
   startSearch() {
     this.route.queryParams.pipe(
       switchMap((params: Params) => {
-        if (!_.isEmpty(params['searchText']) && !_.isEmpty(params['recordType'])) {
-          const searchText = params['searchText'];
-          const recordType = params['recordType'];
-          const configSearch = this.config[recordType];
-          if (_.isUndefined(this.paramMap) || _.isUndefined(this.paramMap[recordType])) {
-            this.initSearchConfig(recordType, this.config);
+        const searchText = _.trim(params['searchText']);
+        if (!_.isEmpty(searchText) && !_.isEmpty(params['recordType'])) {
+          this.recordType = params['recordType'];
+          const configSearch = this.config[this.recordType];
+          if (_.isUndefined(this.paramMap) || _.isUndefined(this.paramMap[this.recordType])) {
+            this.initSearchConfig(this.recordType, this.config);
           }
-          this.currentParam = this.paramMap[recordType];
+          this.currentParam = this.paramMap[this.recordType];
           this.currentParam.searchText = searchText;
           this.currentParam.rows = params['rows'] || configSearch.rows;
           this.currentParam.start = params['start'] || 0;
           this.currentParam.parseRefiner(params['refiner'] || '');
           return this.doSearch();
+        } else {
+
+          if (_.isEmpty(params['recordType'])) {
+            this.recordType = this.config.recordTypes[0]
+          } else {
+            this.recordType = params['recordType'];
+          }
+          if (_.isUndefined(this.paramMap) || _.isUndefined(this.paramMap[this.recordType])) {
+            this.initSearchConfig(this.recordType, this.config);
+          }
+          this.currentParam = this.paramMap[this.recordType];
         }
         return Observable.of(null);
       }
@@ -109,15 +120,12 @@ export class SearchComponent {
     });
     this.configService.getConfig((config) => {
       this.config = config;
-      // set the default...
-      this.initSearchConfig(config.searchModes[0], config);
-      this.currentParam = this.paramMap[config.searchModes[0]];
       this.startSearch();
     });
   }
 
   getSearchResultForDisplay() {
-    const searchConfig = this.config[this.searchMode];
+    const searchConfig = this.config[this.recordType];
     const displayLineConfig = searchConfig.searchResultDisplay || this.config.defaultSearchResultDisplay;
     return _.map(this.searchResults.results, (res) => {
       const templateOpts = {
@@ -132,7 +140,8 @@ export class SearchComponent {
     });
   }
 
-  setSearchMode(sMode) {
-    this.searchMode = sMode;
+  setRecordType(rType) {
+    this.recordType = rType;
+    this.router.navigate(['search'], {queryParams: {recordType: this.recordType}} );
   }
 }
