@@ -4,7 +4,7 @@
     "person"
   ],
   "dataset": {
-    "solrUrl": "http://localhost:8980/solr/dataset/select",
+    "solrUrl": "http://localhost:8980/",
     "mainQuery": "?q=record_type_s:dataset AND (<%= queryFields %>)<%= fieldList %>,[child%20parentFilter=record_type_s:dataset]&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
     "queryFieldsBoolOperator": " OR ",
     "queryFieldValPrefix": "",
@@ -32,7 +32,7 @@
     ]
   },
   "person": {
-    "solrUrl": "http://localhost:8980/solr/dataset/select",
+    "solrUrl": "http://localhost:8980/",
     "mainQuery": "?q=record_type_s:person AND (<%= queryFields %>)<%= fieldList %>&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
     "queryFieldsBoolOperator": " OR ",
     "queryFieldValPrefix": "",
