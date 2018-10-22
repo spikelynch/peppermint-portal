@@ -8,7 +8,7 @@ setup_git() {
 build() {
   apt-get update; apt-get install wget git -y
   wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
-  export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"; nvm install 8.11.0; nvm use 8.11.0; npm install -g @angular/cli yarn@1.5.1; yarn install; ng build --output-path build/peppermint
+  export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"; nvm install 8.11.0; nvm use 8.11.0; npm install -g @angular/cli yarn@1.5.1; yarn install; ng build --prod --build-optimizer --output-path build/peppermint
 }
 
 commit_files() {
