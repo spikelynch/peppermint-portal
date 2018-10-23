@@ -14,6 +14,7 @@ import { SearchComponent } from './components/search.component';
 import { DetailComponent } from './components/detail.component';
 import { SearchRefinerComponent } from './components/search-refiner.component';
 import { AppComponent } from './app.component';
+import { PaginationModule } from 'ngx-bootstrap';
 
 // route config
 const appRoutes: Routes = [
@@ -36,7 +37,8 @@ const appRoutes: Routes = [
     BrowserModule,
     TranslateI18NextModule,
     RouterModule.forRoot(appRoutes),
-    FormsModule
+    FormsModule,
+    PaginationModule.forRoot()
   ],
   providers: [
     UtilService,

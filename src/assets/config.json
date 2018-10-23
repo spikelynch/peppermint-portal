@@ -13,7 +13,8 @@
       "main_search"
     ],
     "fieldList": "&fl=*",
-    "rows": 20,
+    "rows": 10,
+    "paginationSize": 10,
     "searchFilters": [
       {
         "name": "https___schema_org_keywords_facet_multi",
@@ -41,7 +42,8 @@
       "main_search"
     ],
     "fieldList": "&fl=*",
-    "rows": 20,
+    "rows": 10,
+    "paginationSize": 10,
     "searchFilters": [
       {
         "name": "https___schema_org_funders_facet",

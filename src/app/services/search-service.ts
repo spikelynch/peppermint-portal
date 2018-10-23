@@ -77,6 +77,7 @@ export class SearchParams {
   refinerConfig: SearchRefiner[];
   rows: number;
   start: number = 0;
+  paginationSize: number;
 
   constructor(recType: string) {
     this.recordType = recType;
@@ -113,7 +114,7 @@ export class SearchParams {
     let refinerValues = [];
     _.forEach(this.activeRefiners, (refiner: SearchRefiner) => {
       if (refiner.type == "facet") {
-        refinerValues.push(`refiner_${refiner.name}=${_.isEmpty(refiner.activeValue) ? '' : refiner.activeValue}`)
+        refinerValues.push(`refiner_${refiner.name}=${_.isEmpty(refiner.activeValue) ? '' : refiner.activeValue }`)
       } else {
         refinerValues.push(`refiner_${refiner.name}=${_.isEmpty(refiner.value) ? '' : refiner.value}`);
       }

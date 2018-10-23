@@ -26,6 +26,8 @@ export class SearchComponent {
   currentParam: SearchParams;
   paramMap: any;
   isSearching: boolean = false;
+  currentPage: number = 1;
+  paginationSize: number;
 
   constructor(
     protected translationService: TranslationService,
@@ -55,6 +57,7 @@ export class SearchComponent {
       searchFilterConfig.push(new SearchRefiner(searchConfig));
     });
     searchParam.setRefinerConfig(searchFilterConfig);
+    searchParam.paginationSize = configSearch.paginationSize;
     this.paramMap[recordType] = searchParam;
   }
 
@@ -143,5 +146,10 @@ export class SearchComponent {
   setRecordType(rType) {
     this.recordType = rType;
     this.router.navigate(['search'], {queryParams: {recordType: this.recordType}} );
+  }
+
+  pageChanged(event:any):void {
+    this.currentParam.start = (event.page - 1) * this.currentParam.rows;
+    this.goSearch();
   }
 }

@@ -63,7 +63,8 @@ export class SolrSearchService implements SearchService {
         case "facet":
           let rq = `facet.field=${refiner.name}`;
           if (!_.isEmpty(refiner.activeValue)) {
-            rq = `${rq}&fq=${refiner.name}:${luceneEscapeQuery.escape(refiner.activeValue)}`;
+            const val = refiner.activeValue && refiner.activeValue.indexOf(' ') > 0 ? `"${luceneEscapeQuery.escape(refiner.activeValue)}"` : luceneEscapeQuery.escape(refiner.activeValue)
+            rq = `${rq}&fq=${refiner.name}:${val}`;
           }
           facetList.push(rq);
           break;

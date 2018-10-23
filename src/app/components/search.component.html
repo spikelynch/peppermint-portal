@@ -23,7 +23,7 @@
 </div>
 
 
-<div class="row" *ngIf="searchResults">
+<div class="row" *ngIf="searchResults && !isSearching">
   <ng-container *ngIf="searchResults.numFound > 0 else emptyResultsBlock">
     <div class="col-md-2">
       <search-refiner *ngFor="let refinerConfig of currentParam.getRefinerConfigs()" [isSearching]="isSearching" [refinerConfig]="refinerConfig" (onApplyFilter)="applyRefiner($event)" ></search-refiner>
@@ -54,4 +54,14 @@
       </div>
     </div>
   </ng-template>
+</div>
+<div class="container-fluid" *ngIf="searchResults && !isSearching">
+  <br/>
+  <p class="mx-auto" style="width: 400px;">
+    <pagination
+              [maxSize]="currentParam.paginationSize" [directionLinks]="true"
+              [boundaryLinks]="true" [totalItems]="searchResults.numFound" [itemsPerPage]="currentParam.rows"
+              [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)" class="pagination-sm">
+    </pagination>
+  </p>
 </div>
