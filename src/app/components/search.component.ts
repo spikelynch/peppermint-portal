@@ -4,7 +4,7 @@ import { ConfigService } from '../services/config-service';
 import { UtilService } from '../services/util-service';
 import { SolrSearchService } from '../services/solrsearch-service';
 import { SearchService, SearchResult, SearchParams, SearchRefiner } from '../services/search-service';
-import { Router, ActivatedRoute, ParamMap, Params } from '@angular/router';
+import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
@@ -21,7 +21,6 @@ export class SearchComponent {
   recordType: any = 'dataset';
   config: any;
   translatorReady: boolean;
-  startRows: number = 0;
   searchCardClass: string;
   currentParam: SearchParams;
   paramMap: any;
@@ -58,31 +57,32 @@ export class SearchComponent {
     });
     searchParam.setRefinerConfig(searchFilterConfig);
     searchParam.paginationSize = configSearch.paginationSize;
+    searchParam.rows = configSearch.rows;
     this.paramMap[recordType] = searchParam;
   }
 
   startSearch() {
-    this.route.queryParams.pipe(
-      switchMap((params: Params) => {
-        const searchText = _.trim(params['searchText']);
-        if (!_.isEmpty(searchText) && !_.isEmpty(params['recordType'])) {
-          this.recordType = params['recordType'];
+    this.route.queryParamMap.pipe(
+      switchMap((params: ParamMap) => {
+        const searchText = _.trim(params.get('searchText'));
+        if (!_.isEmpty(searchText) && !_.isEmpty(params.get('recordType'))) {
+          this.recordType = params.get('recordType');
           const configSearch = this.config[this.recordType];
           if (_.isUndefined(this.paramMap) || _.isUndefined(this.paramMap[this.recordType])) {
             this.initSearchConfig(this.recordType, this.config);
           }
           this.currentParam = this.paramMap[this.recordType];
           this.currentParam.searchText = searchText;
-          this.currentParam.rows = params['rows'] || configSearch.rows;
-          this.currentParam.start = params['start'] || 0;
-          this.currentParam.parseRefiner(params['refiner'] || '');
+          this.currentParam.rows = _.toInteger(params.get('rows')) || configSearch.rows;
+          this.currentParam.start = _.toInteger(params.get('start')) || 0;
+          this.currentParam.parseRefiner(params.get('refiner') || '');
           return this.doSearch();
         } else {
 
-          if (_.isEmpty(params['recordType'])) {
+          if (_.isEmpty(params.get('recordType'))) {
             this.recordType = this.config.recordTypes[0]
           } else {
-            this.recordType = params['recordType'];
+            this.recordType = params.get('recordType');
           }
           if (_.isUndefined(this.paramMap) || _.isUndefined(this.paramMap[this.recordType])) {
             this.initSearchConfig(this.recordType, this.config);
@@ -152,4 +152,10 @@ export class SearchComponent {
     this.currentParam.start = (event.page - 1) * this.currentParam.rows;
     this.goSearch();
   }
+  // 
+  // getBreadcrumb() {
+  //   const crumbs = [];
+  //
+  //   return crumbs;
+  // }
 }

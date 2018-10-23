@@ -46,15 +46,15 @@
     "paginationSize": 10,
     "searchFilters": [
       {
-        "name": "https___schema_org_funders_facet",
-        "title": "search-refine-funders",
+        "name": "https___schema_org_birthPlace_facet",
+        "title": "search-refine-birthPlace",
         "type": "facet",
         "typeLabel": null,
         "alwaysActive": true
       },
       {
-        "name": "https___schema_org_birthPlace_facet",
-        "title": "search-refine-birthPlace",
+        "name": "https___schema_org_birthDate_facet",
+        "title": "search-refine-birthDate",
         "type": "facet",
         "typeLabel": null,
         "alwaysActive": true

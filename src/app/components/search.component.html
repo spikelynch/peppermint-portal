@@ -17,51 +17,71 @@
   <div class="col-md-1"></div>
 </div>
 
-
 <div *ngIf="isSearching" class="mx-auto" style="width: 200px;">
   <img src="assets/loading.svg" alt="Searching...">
 </div>
 
-
-<div class="row" *ngIf="searchResults && !isSearching">
-  <ng-container *ngIf="searchResults.numFound > 0 else emptyResultsBlock">
-    <div class="col-md-2">
-      <search-refiner *ngFor="let refinerConfig of currentParam.getRefinerConfigs()" [isSearching]="isSearching" [refinerConfig]="refinerConfig" (onApplyFilter)="applyRefiner($event)" ></search-refiner>
+<ng-container *ngIf="searchResults && !isSearching">
+  <!-- Breadcrumbs -->
+  <!-- <div class="row" *ngIf="searchResults.numFound > 0 ">
+    <div class="col">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li *ngFor="let crumb of getBreadcrumb()" [class]="crumb.class">
+            <ng-container *ngIf="crumb.active else inactiveBlock">
+              {{ crumb.name }}
+            </ng-container>
+            <ng-container #inactiveBlock>
+              <a [href]="crumb.href"> {{ crumb.name }}</a>
+            </ng-container>
+          </a>
+        </ol>
+      </nav>
     </div>
-    <div class="col-md-10">
-      <div class="card">
-        <div class="card-header {{ searchCardClass }}" [innerHTML]="'search-results' | translate: { numFound: this.searchResults.numFound }"></div>
-        <div class="card-body">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item" *ngFor="let searchRes of getSearchResultForDisplay()">
-              <ng-container *ngFor="let dispLine of searchRes.displayLines" >
-                <div [ngClass]="dispLine.class" *ngIf="!dispLine.link" [innerHTML]="dispLine.template"></div>
-                <div [ngClass]="dispLine.class" *ngIf="dispLine.link">
-                  <a *ngIf="dispLine.type == 'internal'" [routerLink]=[searchRes[dispLine.field]] [innerHTML]="dispLine.template"></a>
-                  <a *ngIf="dispLine.type == 'external'" [href]="searchRes.res[dispLine.field]" [innerHTML]="dispLine.template"></a>
-                </div>
-              </ng-container>
-            </li>
-          </ul>
+  </div>
+   -->
+  <!-- Search result -->
+  <div class="row">
+    <ng-container *ngIf="searchResults.numFound > 0 else emptyResultsBlock">
+      <div class="col-md-2">
+        <search-refiner *ngFor="let refinerConfig of currentParam.getRefinerConfigs()" [isSearching]="isSearching" [refinerConfig]="refinerConfig" (onApplyFilter)="applyRefiner($event)" ></search-refiner>
+      </div>
+      <div class="col-md-10">
+        <div class="card">
+          <div class="card-header {{ searchCardClass }}" [innerHTML]="'search-results' | translate: { numFound: this.searchResults.numFound }"></div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item" *ngFor="let searchRes of getSearchResultForDisplay()">
+                <ng-container *ngFor="let dispLine of searchRes.displayLines" >
+                  <div [ngClass]="dispLine.class" *ngIf="!dispLine.link" [innerHTML]="dispLine.template"></div>
+                  <div [ngClass]="dispLine.class" *ngIf="dispLine.link">
+                    <a *ngIf="dispLine.type == 'internal'" [routerLink]=[searchRes[dispLine.field]] [innerHTML]="dispLine.template"></a>
+                    <a *ngIf="dispLine.type == 'external'" [href]="searchRes.res[dispLine.field]" [innerHTML]="dispLine.template"></a>
+                  </div>
+                </ng-container>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
-  </ng-container>
-  <ng-template #emptyResultsBlock>
-    <div class="col-md-12">
-      <div class="card">
-        <div class="card-header {{ searchCardClass }}" [innerHTML]="'search-results' | translate: { numFound: this.searchResults.numFound }"></div>
+    </ng-container>
+    <ng-template #emptyResultsBlock>
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header {{ searchCardClass }}" [innerHTML]="'search-results' | translate: { numFound: this.searchResults.numFound }"></div>
+        </div>
       </div>
-    </div>
-  </ng-template>
-</div>
-<div class="container-fluid" *ngIf="searchResults && !isSearching">
-  <br/>
-  <p class="mx-auto" style="width: 400px;">
-    <pagination
-              [maxSize]="currentParam.paginationSize" [directionLinks]="true"
-              [boundaryLinks]="true" [totalItems]="searchResults.numFound" [itemsPerPage]="currentParam.rows"
-              [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)" class="pagination-sm">
-    </pagination>
-  </p>
-</div>
+    </ng-template>
+  </div>
+  <!-- Pagination -->
+  <div class="container-fluid" *ngIf="searchResults.numFound > 0 ">
+    <br/>
+    <p class="mx-auto" style="width: 400px;">
+      <pagination
+                [maxSize]="currentParam.paginationSize" [directionLinks]="true"
+                [boundaryLinks]="true" [totalItems]="searchResults.numFound" [itemsPerPage]="currentParam.rows"
+                [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)" class="pagination-sm">
+      </pagination>
+    </p>
+  </div>
+</ng-container>

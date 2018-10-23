@@ -10,5 +10,6 @@
   "search-refine-apply-filter": "Go",
   "search-refine-publisher": "Publisher",
   "search-refine-funders": "Funders",
-  "search-refine-birthPlace": "Birth Place"
+  "search-refine-birthPlace": "Birth Place",
+  "search-refine-birthDate": "Birth Date"
 }
