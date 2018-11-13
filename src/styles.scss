@@ -1,0 +1,13 @@
+/* You can add global styles to this file, and also import other style files */
+
+// Bootstrap variables control the theming
+// uncomment and customise as needed
+//
+// $theme-colors: (
+//   // panel headers use success
+//   "success": black
+// );
+
+$body-color: black;
+
+@import "../node_modules/bootstrap/scss/bootstrap";
