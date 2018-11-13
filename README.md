@@ -1,29 +1,50 @@
 # Peppermint Portal
 
-Portal for [Peppermint](https://github.com/redbox-mint/peppermint).
+Discovery portal for [Peppermint](https://github.com/redbox-mint/peppermint).
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.7.3.
+## Architecture
+```
+                                                      +-------------------+
+                                                      |                   |
+                                                      | Peppermint Portal |
+                                                      |                   |
+                                                      +--------+----------+
+                                                               |
+                                                               |
++---------------------+         +--------------+      +--------v----------+
+|                     |         |              |      |                   |
+|  Source of Truth    +--------->  Peppermint  +------>    Search Index   |
+|                     |         |              |      |      (SOLR)       |
++---------------------+         +--------------+      +-------------------+
+```
 
-## Development server
+## Running
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+### Quick set up
 
-## Code scaffolding
+- Install docker-compose
+- Clone [Peppermint](https://github.com/redbox-mint/peppermint/) and under a directory.
+- Run using [Peppermint's docker-compose.yml](https://github.com/redbox-mint/peppermint/blob/master/docker-compose.yml): `docker-compose up`
+- Navigate to `http://localhost:9001/peppermint/`
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Customising
 
-## Build
+### Text
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
+- Modify [translation file](https://github.com/redbox-mint/peppermint-portal/blob/master/src/assets/locales/en/translation.json)
 
-## Running unit tests
+### Discovery / search config
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+- Modify [config file](https://github.com/redbox-mint/peppermint-portal/blob/master/src/assets/config.json)
 
-## Running end-to-end tests
+| Config key | Description |
+| --- | --- |
+| recordTypes | The available record types for discovery / query. The key value corresponds to the `search-<recordType>` in the [translation file](https://github.com/redbox-mint/peppermint-portal/blob/master/src/assets/locales/en/translation.json). Also, it corresponds to the record type config described below. |
+| `recordType` | The record type block configuration.  |
+| defaultSearchResult | Array of lines that is executed as part of displaying a search result. |
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+### Search interface
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+- For HTML header, script, CSS, etc.: modify [index.html](https://github.com/redbox-mint/peppermint-portal/blob/master/src/index.html)
+- For main search header/footer/main interface component modify the [main component](https://github.com/redbox-mint/peppermint-portal/blob/master/src/app/app.component.html)
+- For search bar interface/refiner UI, edit the appropriate component under [src/app/components](https://github.com/redbox-mint/peppermint-portal/blob/master/src/app/components)

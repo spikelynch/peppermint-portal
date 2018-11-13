@@ -1,13 +1,21 @@
 <div *ngIf="!isLoaded()" class="mx-auto" style="width: 200px;">
-  <img src="assets/loading.svg" alt="Loading...">
+  <img src="assets/loading.svg" alt="Loading..."/>
 </div>
-<div *ngIf="isLoaded()" class="container-fluid">
-  <div class="row">
-    <h1 class="col-md-12">
-      <p class="text-center"><a href="/peppermint/">{{ 'title' | translate }}</a></p>
-    </h1>
+<ng-container *ngIf="isLoaded()">
+  <!-- Header section -->
+  <div class="container-fluid">
+    <div class="row">
+      <h1 class="col-md-12">
+        <p class="text-center">
+          <img src="assets/mint.svg" style="width:100px;" alt="Peppermint logo"/>
+          <a href="/peppermint/">{{ 'title' | translate }}</a>
+        </p>
+      </h1>
+    </div>
   </div>
-</div>
-<div *ngIf="isLoaded()" class="container-fluid">
-  <router-outlet></router-outlet>
-</div>
+  <!-- Main router outlet / body -->
+  <div class="container-fluid">
+    <router-outlet></router-outlet>
+  </div>
+  <!-- Footer section -->
+</ng-container>

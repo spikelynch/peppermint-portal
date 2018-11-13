@@ -3,11 +3,16 @@
 // Bootstrap variables control the theming
 // uncomment and customise as needed
 //
+// For documentation, see: https://getbootstrap.com/docs/4.0/getting-started/theming/#introduction
+// 
+// e.g.
 // $theme-colors: (
 //   // panel headers use success
-//   "success": black
+//   "success": black;
 // );
 
+
+// set default font color
 $body-color: black;
 
 @import "../node_modules/bootstrap/scss/bootstrap";
