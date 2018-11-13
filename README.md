@@ -27,6 +27,12 @@ Discovery portal for [Peppermint](https://github.com/redbox-mint/peppermint).
 - Run using [Peppermint's docker-compose.yml](https://github.com/redbox-mint/peppermint/blob/master/docker-compose.yml): `docker-compose up`
 - Navigate to `http://localhost:9001/peppermint/`
 
+### Running as standalone, without Peppermint, etc.
+
+- Clone a pre-built version of this project:`git clone -b dev_build https://github.com/redbox-mint/peppermint-portal.git`
+- Configure your web server to serve `peppermint-portal/build/peppermint/` directory as `/peppermint/` path. Also, because the portal is a SPA, update your web server configuration to serve the `peppermint-portal/build/index.html` for all non-existent routes. See this sample config line for (NGINX)[https://github.com/vyakymenko/angular-nginx-config-example/blob/master/ng2-application.conf#L97].
+- Update your `build/peppermint/assets/config.json` so it can query your search index of choice.
+
 ## Customising
 
 ### Text
