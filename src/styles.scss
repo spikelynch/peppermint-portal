@@ -4,7 +4,7 @@
 // uncomment and customise as needed
 //
 // For documentation, see: https://getbootstrap.com/docs/4.0/getting-started/theming/#introduction
-// 
+//
 // e.g.
 // $theme-colors: (
 //   // panel headers use success
@@ -14,5 +14,11 @@
 
 // set default font color
 $body-color: black;
+
+.nav-main {
+  background-color: #28713f !important;
+}
+
+$navbar-light-active-color: rgb(200, 121, 105);
 
 @import "../node_modules/bootstrap/scss/bootstrap";

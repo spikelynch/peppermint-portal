@@ -58,3 +58,10 @@ Discovery portal for [Peppermint](https://github.com/redbox-mint/peppermint).
 - For HTML header, script, CSS, etc.: modify [index.html](https://github.com/redbox-mint/peppermint-portal/blob/master/src/index.html)
 - For main search header/footer/main interface component modify the [main component](https://github.com/redbox-mint/peppermint-portal/blob/master/src/app/app.component.html)
 - For search bar interface/refiner UI, edit the appropriate component under [src/app/components](https://github.com/redbox-mint/peppermint-portal/blob/master/src/app/components)
+
+## Developing
+
+### Quick set up
+- Run as "Quick set up" above, but instead of using the `dev_build` branch, use the branch you want to develop against.
+- Then on the repo directory, run `ng run-script build_dev_watch`
+- Editing the files on the repo, will rebuild the bundled files and sync it to the docker container.
