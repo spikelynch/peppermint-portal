@@ -14,11 +14,28 @@
 
 // set default font color
 $body-color: black;
+$main-color: white;
+$navbar-light-color:          rgba($main-color, .5) !default;
+$navbar-light-hover-color:    rgba($main-color, .7) !default;
+$navbar-light-active-color:   rgba($main-color, .9) !default;
+
+.header-main {
+  a {
+    color: #28713f;
+    &:hover {
+      color: #28713f;
+      text-decoration: none;
+    }
+  }
+}
 
 .nav-main {
   background-color: #28713f !important;
+  color: white;
 }
 
-$navbar-light-active-color: rgb(200, 121, 105);
+.search-panel {
+  color: white;
+}
 
 @import "../node_modules/bootstrap/scss/bootstrap";

@@ -94,10 +94,10 @@ export class SearchComponent {
     )).subscribe(res => {
       this.searchResults = res;
       if (this.searchResults && this.searchResults.numFound > 0) {
-        this.searchCardClass = 'text-center bg-success';
+        this.searchCardClass = 'text-center bg-success search-panel';
         this.currentParam.setFacetValues(this.searchResults.facets);
       } else {
-        this.searchCardClass = 'text-center bg-warning';
+        this.searchCardClass = 'text-center bg-warning search-panel';
       }
     });
   }
@@ -152,7 +152,7 @@ export class SearchComponent {
     this.currentParam.start = (event.page - 1) * this.currentParam.rows;
     this.goSearch();
   }
-  // 
+  //
   // getBreadcrumb() {
   //   const crumbs = [];
   //
