@@ -1,4 +1,4 @@
-# Peppermint Portal
+# Peppermint Portal [![Build Status](https://travis-ci.org/redbox-mint/peppermint-portal.svg?branch=master)](https://travis-ci.org/redbox-mint/peppermint-portal)
 
 Discovery portal for [Peppermint](https://github.com/redbox-mint/peppermint).
 
