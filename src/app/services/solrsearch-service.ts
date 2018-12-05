@@ -55,15 +55,19 @@ export class SolrSearchService implements SearchService {
     const configSearch = this.config[recordType];
     const qflist = [];
     _.each(configSearch.queryFields, (qf) => {
-      qflist.push(`${qf}:${configSearch.queryFieldValPrefix}${luceneEscapeQuery.escape(searchText)}${configSearch.queryFieldValSuffix}`);
+      qflist.push(`${qf}:${configSearch.queryFieldValPrefix}${searchText == '*' ? searchText : luceneEscapeQuery.escape(searchText)}${configSearch.queryFieldValSuffix}`);
     });
     const facetList = [];
     _.each(searchParam.activeRefiners, (refiner: SearchRefiner) => {
       switch(refiner.type) {
         case "facet":
           let rq = `facet.field=${refiner.name}`;
-          if (!_.isEmpty(refiner.activeValue)) {
-            const val = refiner.activeValue && refiner.activeValue.indexOf(' ') > 0 ? `"${luceneEscapeQuery.escape(refiner.activeValue)}"` : luceneEscapeQuery.escape(refiner.activeValue)
+          let activeValue = refiner.activeValue;
+          if (!_.isEmpty(activeValue)) {
+            if (!_.isUndefined(activeValue.value)) {
+              activeValue = activeValue.value;
+            }
+            const val = activeValue && activeValue.indexOf(' ') > 0 ? `"${luceneEscapeQuery.escape(activeValue)}"` : luceneEscapeQuery.escape(activeValue)
             rq = `${rq}&fq=${refiner.name}:${val}`;
           }
           facetList.push(rq);
@@ -85,13 +89,13 @@ export class SolrSearchService implements SearchService {
     return this.http.get(url);
   }
 
-  public extractData(res: Response, parentField: any = null): SearchResult {
+  public extractData(res: Response, parentField: any = null, params: SearchParams = null): SearchResult {
     let body = res.json();
     let data = body || {};
     if (parentField) {
         data = body[parentField] || {};
     }
-    return new SolrSearchResult(data);
+    return new SolrSearchResult(data, params);
   }
 }
 
@@ -106,12 +110,39 @@ export class SolrFacetValue implements SearchFacetValue {
 
 export class SolrFacet implements SearchFacet {
   name: string;
-  value: SearchFacetValue[];
+  value: any;
 
-  constructor(name: string, value: SearchFacetValue[]) {
+  constructor(name: string, value: any) {
     this.name = name;
     this.value = value;
   }
+
+  addGroup(name, count) {
+    this.value[name] = {name: name, groupCount: count, childFacets: {}};
+  }
+
+  addToGroup(facetname, facetVal, facetCount) {
+    if (_.isUndefined(facetname) || _.isUndefined(facetVal) || _.isUndefined(facetCount) ) {
+      return;
+    }
+    // derive the group name using the facet name
+    const nameParts = facetname.split('_______');
+    if (nameParts && nameParts.length == 2) {
+      // add to all groups
+      const solrFacetVal = new SolrFacetValue(facetVal, facetCount)
+      _.forOwn(this.value, (grpVal, grpName) => {
+        grpVal.childFacets[grpName].push(solrFacetVal)
+      });
+    } else {
+      // add only to the group
+      if (_.isEmpty(this.value[nameParts[1]].childFacets[facetname])) {
+        this.value[nameParts[1]].childFacets[facetname] = new SolrFacet(facetname, []);
+      }
+      this.value[nameParts[1]].childFacets[facetname].value.push(new SolrFacetValue(facetVal, facetCount))
+    }
+  }
+
+
 }
 
 export class SolrSearchResult implements SearchResult {
@@ -121,7 +152,7 @@ export class SolrSearchResult implements SearchResult {
   results: any[];
   facets: SearchFacet[];
 
-  constructor(httpResp: any) {
+  constructor(httpResp: any, params: SearchParams) {
     // parse the SOLR response
     this.rawResponse = httpResp;
     this.numFound = httpResp.response.numFound;
@@ -129,16 +160,44 @@ export class SolrSearchResult implements SearchResult {
     this.results = httpResp.response.docs;
     if (httpResp.facet_counts) {
       this.facets = [];
-      _.forOwn(httpResp.facet_counts.facet_fields, (facet_field_val: any, facet_field_name:any) => {
-        const values = [];
-        for (var i=0; i < facet_field_val.length; ) {
-          const facet_val = facet_field_val[i++];
-          const facet_count = facet_field_val[i++];
-          values.push(new SolrFacetValue(facet_val, facet_count));
-        }
-        const searchFacet = new SolrFacet(facet_field_name, values);
-        this.facets.push(searchFacet);
-      });
+      // check if we're grouping search filters...
+      if (!_.isEmpty(params.groupSearchRefinersBy)) {
+        let mainFacet = null;
+        const values = {};
+        _.forOwn(httpResp.facet_counts.facet_fields, (facet_field_val: any, facet_field_name:any) => {
+          if (facet_field_name  == params.groupSearchRefinersBy) {
+            mainFacet = new SolrFacet(facet_field_name, values)
+            this.facets.push(mainFacet);
+            for (var i=0; i < facet_field_val.length; ) {
+              const facet_val = facet_field_val[i++];
+              const facet_count = facet_field_val[i++];
+              mainFacet.addGroup(facet_val, facet_count);
+            }
+            return false;
+          }
+        });
+        _.forOwn(httpResp.facet_counts.facet_fields, (facet_field_val: any, facet_field_name:any) => {
+          if (facet_field_name  != params.groupSearchRefinersBy) {
+            const maxEntries = params.maxGroupedResultsCount * 2;
+            for (var i=0; i < maxEntries; ) {
+              const facet_val = facet_field_val[i++];
+              const facet_count = facet_field_val[i++];
+              mainFacet.addToGroup(facet_field_name, facet_val, facet_count);
+            }
+          }
+        });
+      } else {
+        _.forOwn(httpResp.facet_counts.facet_fields, (facet_field_val: any, facet_field_name:any) => {
+          const values = [];
+          for (var i=0; i < facet_field_val.length; ) {
+            const facet_val = facet_field_val[i++];
+            const facet_count = facet_field_val[i++];
+            values.push(new SolrFacetValue(facet_val, facet_count));
+          }
+          const searchFacet = new SolrFacet(facet_field_name, values);
+          this.facets.push(searchFacet);
+        });
+      }
     }
   }
 }

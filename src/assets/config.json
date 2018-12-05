@@ -1,8 +1,65 @@
 {
   "recordTypes": [
+    "all",
     "dataset",
     "person"
   ],
+  "all": {
+    "solrUrl": "http://localhost:8980/",
+    "mainQuery": "?q=record_type_s:* AND (<%= queryFields %>)<%= fieldList %>,[child%20parentFilter=<%= queryFields %>]&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
+    "queryFieldsBoolOperator": " OR ",
+    "queryFieldValPrefix": "",
+    "queryFieldValSuffix": "",
+    "queryFields": [
+      "main_search"
+    ],
+    "fieldList": "&fl=*",
+    "rows": 10,
+    "paginationSize": 10,
+    "groupSearchRefinersBy": "type_______facet_multi",
+    "maxGroupedResultsCount": 5,
+    "searchRefiners": [
+      {
+        "name": "type_______facet_multi",
+        "title": "@value",
+        "type": "facet",
+        "typeLabel": null,
+        "alwaysActive": true
+      },
+      {
+        "name": "https___schema_org_keywords_______https___schema_org_Dataset_______facet_multi",
+        "title": "search-refine-keywords",
+        "type": "facet",
+        "typeLabel": null,
+        "alwaysActive": true,
+        "targetRecordType": "dataset"
+      },
+      {
+        "name": "https___schema_org_publisher_______https___schema_org_Dataset_______facet",
+        "title": "search-refine-publisher",
+        "type": "facet",
+        "typeLabel": null,
+        "alwaysActive": true,
+        "targetRecordType": "dataset"
+      },
+      {
+        "name": "https___schema_org_birthPlace_______https___schema_org_Person_______facet",
+        "title": "search-refine-birthPlace",
+        "type": "facet",
+        "typeLabel": null,
+        "alwaysActive": true,
+        "targetRecordType": "person"
+      },
+      {
+        "name": "https___schema_org_birthDate_______https___schema_org_Person_______facet",
+        "title": "search-refine-birthDate",
+        "type": "facet",
+        "typeLabel": null,
+        "alwaysActive": true,
+        "targetRecordType": "person"
+      }
+    ]
+  },
   "dataset": {
     "solrUrl": "http://localhost:8980/",
     "mainQuery": "?q=record_type_s:dataset AND (<%= queryFields %>)<%= fieldList %>,[child%20parentFilter=record_type_s:dataset]&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
@@ -15,16 +72,16 @@
     "fieldList": "&fl=*",
     "rows": 10,
     "paginationSize": 10,
-    "searchFilters": [
+    "searchRefiners": [
       {
-        "name": "https___schema_org_keywords_facet_multi",
+        "name": "https___schema_org_keywords_______https___schema_org_Dataset_______facet_multi",
         "title": "search-refine-keywords",
         "type": "facet",
         "typeLabel": null,
         "alwaysActive": true
       },
       {
-        "name": "https___schema_org_publisher_facet",
+        "name": "https___schema_org_publisher_______https___schema_org_Dataset_______facet",
         "title": "search-refine-publisher",
         "type": "facet",
         "typeLabel": null,
@@ -44,16 +101,16 @@
     "fieldList": "&fl=*",
     "rows": 10,
     "paginationSize": 10,
-    "searchFilters": [
+    "searchRefiners": [
       {
-        "name": "https___schema_org_birthPlace_facet",
+        "name": "https___schema_org_birthPlace_______https___schema_org_Person_______facet",
         "title": "search-refine-birthPlace",
         "type": "facet",
         "typeLabel": null,
         "alwaysActive": true
       },
       {
-        "name": "https___schema_org_birthDate_facet",
+        "name": "https___schema_org_birthDate_______https___schema_org_Person_______facet",
         "title": "search-refine-birthDate",
         "type": "facet",
         "typeLabel": null,

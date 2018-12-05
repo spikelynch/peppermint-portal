@@ -1,17 +1,57 @@
-<div class="row" *ngIf="(refinerConfig.type == 'facet' && hasValue()) || refinerConfig.type != 'facet'">
-  <div class="col-md-12">
-    <div class="card">
+<ng-container *ngIf="isGrouped() else ungroupedBlock">
+  <div class="row">
+    <ng-container *ngFor="let facetValue of getGroupsAsArray(refinerConfig.value)">
+      <ng-container *ngIf="hasValue(facetValue.childFacets)">
+          <!-- top level header: group name -->
+          <div class="col">
+            <h2 *ngIf="refinerConfig.title == '@value'">{{ facetValue.name | translate }} </h2>
+          </div>
+          <div class="w-100"></div>
+          <!-- the individual facets -->
+          <ng-container *ngFor="let childFacet of getGroupsAsArray(facetValue.childFacets); index as i;">
+            <div class="col">
+              <div class="card h-100" >
+                <div class="card-header text-center bg-success search-panel">
+                  {{ childFacet.name | translate }}
+                </div>
+                <div class="card-body">
+                  <!-- for link facets only -->
+                  <ul class="list-unstyled">
+                    <ng-container *ngFor="let childFacetValue of childFacet.value">
+                      <li *ngIf="childFacetValue.count > 0 && childFacetValue.value">
+                        <a href="" (click)="applyFilter($event, {name: childFacet.name, value: childFacetValue.value})"> {{ childFacetValue.value }} ({{ childFacetValue.count }})</a>
+                      </li>
+                    </ng-container>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <ng-container *ngIf="((i+1)%4) == 0">
+              <div class="w-100"></div>
+            </ng-container>
+          </ng-container>
+      </ng-container>
+      <div class="w-100"></div>
+    </ng-container>
+  </div>
+</ng-container>
+
+<ng-template #ungroupedBlock>
+  <div [ngClass]="classes" *ngIf="(refinerConfig.type == 'facet' && hasValue()) || refinerConfig.type != 'facet'">
+    <div class="card h-100">
       <div class="card-header text-center bg-success search-panel">
         {{ refinerConfig.title | translate }}
       </div>
       <div class="card-body">
         <div *ngIf="refinerConfig.typeLabel"> {{ refinerConfig.typeLabel | translate }} </div>
+        <!-- for free form filters/ facets -->
         <div class="input-group" *ngIf="refinerConfig.type == 'exact'">
           <input [(ngModel)]="refinerConfig.value" class="form-control" (keyup.enter)="applyFilter($event)">
           <span class="input-group-btn">
             <button [disabled]="isSearching || !hasValue()" class="btn btn-primary" type='button' (click)="applyFilter($event)">{{ 'search-refine-apply-filter' | translate }}</button>
           </span>
         </div>
+        <!-- for link facets -->
         <div *ngIf="refinerConfig.type == 'facet'">
           <ul class="list-unstyled">
             <ng-container *ngFor="let facetValue of refinerConfig.value">
@@ -24,4 +64,4 @@
       </div>
     </div>
   </div>
-</div>
+</ng-template>

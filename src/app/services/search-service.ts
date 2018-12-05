@@ -25,9 +25,10 @@ export interface SearchFacetValue {
   value: any;
   count: number;
 }
+
 export interface SearchFacet {
   name: string;
-  value: SearchFacetValue[];
+  value: any;
 }
 
 export interface SearchResult {
@@ -40,7 +41,7 @@ export interface SearchResult {
 
 export interface SearchService {
   search(param:SearchParams): Observable<any>;
-  extractData(res: Response, parentField: any): SearchResult;
+  extractData(res: Response, parentField: any, params: SearchParams): SearchResult;
 }
 
 export class SearchRefiner {
@@ -51,6 +52,7 @@ export class SearchRefiner {
   alwaysActive: boolean;
   typeLabel: string;
   activeValue: any;
+  targetRecordType: string;
 
   constructor(opts: any = {}) {
     this.name = opts.name;
@@ -59,6 +61,7 @@ export class SearchRefiner {
     this.value = opts.value;
     this.typeLabel = opts.typeLabel;
     this.alwaysActive = opts.alwaysActive;
+    this.targetRecordType = opts.targetRecordType;
   }
 
   setCurrentValue(value: any) {
@@ -78,6 +81,9 @@ export class SearchParams {
   rows: number;
   start: number = 0;
   paginationSize: number;
+  showResult: boolean = true;
+  groupSearchRefinersBy: string;
+  maxGroupedResultsCount: number;
 
   constructor(recType: string) {
     this.recordType = recType;

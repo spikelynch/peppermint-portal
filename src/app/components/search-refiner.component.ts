@@ -9,6 +9,9 @@ import * as _ from "lodash";
 export class SearchRefinerComponent {
   @Input() refinerConfig: SearchRefiner;
   @Input() isSearching: boolean;
+  @Input() classes: string;
+  @Input() maxCols: number;
+
   @Output() onApplyFilter: EventEmitter<any> = new EventEmitter<any>();
 
   applyFilter(event:any, refinerValue:any = null) {
@@ -19,8 +22,20 @@ export class SearchRefinerComponent {
     }
   }
 
-  hasValue() {
-    return !_.isEmpty(this.refinerConfig.value);
+  hasValue(val: any = null) {
+    return _.isNull(val) ? !_.isEmpty(this.refinerConfig.value) : _.size(val) > 0;
+  }
+
+  isGrouped() {
+    return this.refinerConfig && this.refinerConfig.value &&  !_.isArray(this.refinerConfig.value);
+  }
+
+  getGroupsAsArray(val) {
+    const g = []
+    _.forOwn(val, (grpVal, grpName) => {
+      g.push(grpVal);
+    });
+    return g;
   }
 
 }

@@ -38,4 +38,16 @@ $navbar-light-active-color:   rgba($main-color, .9) !default;
   color: white;
 }
 
+.browse-panel {
+  background-color: #28713f !important;
+  color: white;
+  a {
+    color: white;
+    &:hover {
+      color: white;
+      text-decoration: none;
+    }
+  }
+}
+
 @import "../node_modules/bootstrap/scss/bootstrap";

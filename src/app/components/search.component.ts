@@ -17,7 +17,7 @@ import * as moment from 'moment';
   templateUrl: './search.component.html'
 })
 export class SearchComponent {
-  searchResults: any;
+  searchResults: SearchResult;
   recordType: any = 'dataset';
   config: any;
   translatorReady: boolean;
@@ -27,6 +27,7 @@ export class SearchComponent {
   isSearching: boolean = false;
   currentPage: number = 1;
   paginationSize: number;
+  showFacets: boolean = false;
 
   constructor(
     protected translationService: TranslationService,
@@ -38,6 +39,10 @@ export class SearchComponent {
    )
   {
     this.paramMap = {};
+  }
+
+  toggleFacetShow() {
+    this.showFacets = !this.showFacets;
   }
 
   goSearch(rType: any = null) {
@@ -52,12 +57,14 @@ export class SearchComponent {
     // build the config...
     const configSearch = config[recordType];
     const searchFilterConfig = [];
-    _.each(configSearch.searchFilters, (searchConfig:any) => {
+    _.each(configSearch.searchRefiners, (searchConfig:any) => {
       searchFilterConfig.push(new SearchRefiner(searchConfig));
     });
     searchParam.setRefinerConfig(searchFilterConfig);
     searchParam.paginationSize = configSearch.paginationSize;
     searchParam.rows = configSearch.rows;
+    searchParam.groupSearchRefinersBy = configSearch.groupSearchRefinersBy;
+    searchParam.maxGroupedResultsCount = configSearch.maxGroupedResultsCount;
     this.paramMap[recordType] = searchParam;
   }
 
@@ -73,12 +80,12 @@ export class SearchComponent {
           }
           this.currentParam = this.paramMap[this.recordType];
           this.currentParam.searchText = searchText;
-          this.currentParam.rows = _.toInteger(params.get('rows')) || configSearch.rows;
-          this.currentParam.start = _.toInteger(params.get('start')) || 0;
+          this.currentParam.rows = (_.isUndefined(params.get('rows') || _.isEmpty(params.get('rows')))) ? configSearch.rows : _.toInteger(params.get('rows'));
+          this.currentParam.start = (_.isUndefined(params.get('rows') || _.isEmpty(params.get('rows')))) ?  0 :  _.toInteger(params.get('start')) ;
           this.currentParam.parseRefiner(params.get('refiner') || '');
           return this.doSearch();
         } else {
-
+          // setting state when there's no active search
           if (_.isEmpty(params.get('recordType'))) {
             this.recordType = this.config.recordTypes[0]
           } else {
@@ -89,23 +96,43 @@ export class SearchComponent {
           }
           this.currentParam = this.paramMap[this.recordType];
         }
-        return Observable.of(null);
+        return this.doBrowseFacets();
       }
     )).subscribe(res => {
       this.searchResults = res;
-      if (this.searchResults && this.searchResults.numFound > 0) {
-        this.searchCardClass = 'text-center bg-success search-panel';
-        this.currentParam.setFacetValues(this.searchResults.facets);
+      if (this.currentParam.showResult) {
+        if (this.searchResults && this.searchResults.numFound > 0) {
+          this.searchCardClass = 'text-center bg-success search-panel';
+          this.currentParam.setFacetValues(this.searchResults.facets);
+        } else {
+          this.searchCardClass = 'text-center bg-warning search-panel';
+        }
       } else {
-        this.searchCardClass = 'text-center bg-warning search-panel';
+        this.currentParam.setFacetValues(this.searchResults.facets);
+        this.currentParam.searchText = '';
+        this.currentParam.rows = this.config[this.config.recordTypes[0]].rows;
       }
     });
   }
 
+  doBrowseFacets() {
+    this.isSearching = true;
+    this.currentParam.rows = 0;
+    this.currentParam.searchText = '*';
+    this.currentParam.showResult = false;
+    return this.getSearchData();
+  }
+
   doSearch() {
     this.isSearching = true;
+    this.currentParam.showResult = true;
+    this.showFacets = false;
+    return this.getSearchData();
+  }
+
+  getSearchData() {
     return this.searchService.search(this.currentParam).flatMap((res:any) => {
-      const data = this.searchService.extractData(res, null);
+      const data = this.searchService.extractData(res, null, this.currentParam);
       console.log(data);
       this.isSearching = false;
       return Observable.of(data);
@@ -113,8 +140,26 @@ export class SearchComponent {
   }
 
   applyRefiner(refinerConfig: SearchRefiner) {
-    this.currentParam.addActiveRefiner(refinerConfig);
-    this.goSearch();
+    if (this.isGrouped(refinerConfig)) {
+      const facetName = refinerConfig.activeValue.name;
+      const targetRefiner = this.currentParam.getRefinerConfig(facetName);
+      // now use the target type to switch params...
+      if (_.isUndefined(this.paramMap[targetRefiner.targetRecordType])) {
+        this.initSearchConfig(targetRefiner.targetRecordType, this.config);
+      }
+      const actualParam = this.paramMap[targetRefiner.targetRecordType];
+      const actualTargetRefiner = actualParam.getRefinerConfig(facetName);
+      actualTargetRefiner.activeValue = refinerConfig.activeValue.value;
+      // clear the active value so back button Works
+      refinerConfig.activeValue = null;
+      actualParam.addActiveRefiner(actualTargetRefiner);
+      actualParam.searchText = _.isEmpty(this.currentParam.searchText) ? '*' : '';
+      this.currentParam = actualParam;
+      this.goSearch(targetRefiner.targetRecordType);
+    } else {
+      this.currentParam.addActiveRefiner(refinerConfig);
+      this.goSearch();
+    }
   }
 
   ngOnInit() {
@@ -128,9 +173,13 @@ export class SearchComponent {
   }
 
   getSearchResultForDisplay() {
-    const searchConfig = this.config[this.recordType];
-    const displayLineConfig = searchConfig.searchResultDisplay || this.config.defaultSearchResultDisplay;
+    let searchConfig = this.config[this.recordType];
+    let displayLineConfig = searchConfig.searchResultDisplay || this.config.defaultSearchResultDisplay;
     return _.map(this.searchResults.results, (res) => {
+      if (this.recordType != res.record_type_s) {
+        const sConfig = this.config[res.record_type_s]
+        displayLineConfig = sConfig.searchResultDisplay || this.config.defaultSearchResultDisplay;
+      }
       const templateOpts = {
         imports: {data: {}, moment: moment, utilService: this.utilService}
       };
@@ -151,6 +200,14 @@ export class SearchComponent {
   pageChanged(event:any):void {
     this.currentParam.start = (event.page - 1) * this.currentParam.rows;
     this.goSearch();
+  }
+
+  canShowResultSection() {
+    return this.searchResults && !this.isSearching && this.searchResults.numFound > 0 && this.currentParam.showResult == true
+  }
+
+  isGrouped(refinerConfig) {
+    return refinerConfig && refinerConfig.value &&  !_.isArray(refinerConfig.value);
   }
   //
   // getBreadcrumb() {

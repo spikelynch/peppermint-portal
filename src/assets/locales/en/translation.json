@@ -1,6 +1,7 @@
 {
   "title": "Peppermint",
-  "search-text": "Search",
+  "search-text": "Keyword(s)",
+  "search-all": "Search All",
   "search-dataset": "Search Dataset",
   "search-person": "Search Person",
   "loading-alt-text": "Loading...",
@@ -11,5 +12,14 @@
   "search-refine-publisher": "Publisher",
   "search-refine-funders": "Funders",
   "search-refine-birthPlace": "Birth Place",
-  "search-refine-birthDate": "Birth Date"
+  "search-refine-birthDate": "Birth Date",
+  "browse-label": "Browse",
+  "facet-label": "Filter",
+  "search-menu-label": "Search",
+  "https___schema_org_Person": "Person",
+  "https___schema_org_Dataset": "Dataset",
+  "https___schema_org_keywords_______https___schema_org_Dataset_______facet_multi": "Keywords",
+  "https___schema_org_publisher_______https___schema_org_Dataset_______facet": "Publishers",
+  "https___schema_org_birthPlace_______https___schema_org_Person_______facet": "Birth Place",
+  "https___schema_org_birthDate_______https___schema_org_Person_______facet": "Birth Date"
 }
