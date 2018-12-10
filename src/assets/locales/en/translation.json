@@ -16,6 +16,7 @@
   "browse-label": "Browse",
   "facet-label": "Filter",
   "search-menu-label": "Search",
+  "clear-all-label": "Clear All",
   "https___schema_org_Person": "Person",
   "https___schema_org_Dataset": "Dataset",
   "https___schema_org_keywords_______https___schema_org_Dataset_______facet_multi": "Keywords",

@@ -18,6 +18,7 @@
     "paginationSize": 10,
     "groupSearchRefinersBy": "type_______facet_multi",
     "maxGroupedResultsCount": 5,
+    "hideFiltersWhenSearching": true,
     "searchRefiners": [
       {
         "name": "type_______facet_multi",
@@ -72,6 +73,7 @@
     "fieldList": "&fl=*",
     "rows": 10,
     "paginationSize": 10,
+    "maxGroupedResultsCount": 5,
     "searchRefiners": [
       {
         "name": "https___schema_org_keywords_______https___schema_org_Dataset_______facet_multi",
@@ -101,6 +103,7 @@
     "fieldList": "&fl=*",
     "rows": 10,
     "paginationSize": 10,
+    "maxGroupedResultsCount": 5,
     "searchRefiners": [
       {
         "name": "https___schema_org_birthPlace_______https___schema_org_Person_______facet",

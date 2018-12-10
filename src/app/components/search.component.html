@@ -41,23 +41,26 @@
   </div>
    -->
   <!-- Browse / Facets / Refiners -->
-  <div class="row" id="browse-accordion">
+  <div class="row" id="browse-accordion" *ngIf="!hideFiltersWhenSearching">
     <div class="col-md-12">
       <div class="card">
         <div class="card-header browse-panel">
-          <a data-toggle="collapse" href="#browse-collapse" aria-expanded="true" aria-controls="browse-collapse" (click)="toggleFacetShow()">
-            {{ showFacets ? '-' : '+' }}
-            <ng-container *ngIf="canShowResultSection() else browseFacetBlock">
-              {{ 'facet-label' | translate }}
-            </ng-container>
-            <ng-template #browseFacetBlock>
-              {{ 'browse-label' | translate }}
-            </ng-template>
-          </a>
+          <span class="float-left">
+            <a data-toggle="collapse" href="#browse-collapse" aria-expanded="true" aria-controls="browse-collapse" (click)="toggleFacetShow()">
+              {{ showFacets ? '-' : '+' }}
+              <ng-container *ngIf="canShowResultSection() else browseFacetBlock">
+                {{ 'facet-label' | translate }}
+              </ng-container>
+              <ng-template #browseFacetBlock>
+                {{ 'browse-label' | translate }}
+              </ng-template>
+            </a>
+          </span>
+          <span *ngIf="this.currentParam.hasAppliedRefiner" class="float-right"> <a href="#" (click)="clearAppliedRefiners($event)">{{ 'clear-all-label' | translate }}</a> </span>
         </div>
         <div id="browse-collapse" class="card-body collapse" aria-labelledby="browse-heading" data-parent="#browse-accordion">
           <!-- Ungrouped -->
-          <div class="row container-fluid" *ngIf="!isGrouped(currentParam.getRefinerConfigs()[0])">
+          <div id="ungrouped-filter" class="row container-fluid" *ngIf="!isGrouped(currentParam.getRefinerConfigs()) else groupedBlock">
             <ng-container *ngFor="let refinerConfig of currentParam.getRefinerConfigs(); index as i; first as isFirst">
               <div class="col">
                 <search-refiner [classes]="'h-100'" [isSearching]="isSearching" [refinerConfig]="refinerConfig" (onApplyFilter)="applyRefiner($event)" ></search-refiner>
@@ -68,13 +71,13 @@
             </ng-container>
           </div>
           <!-- Grouped -->
-          <div class="container-fluid">
-            <ng-container *ngFor="let refinerConfig of currentParam.getRefinerConfigs(); index as i; first as isFirst">
-              <ng-container *ngIf="isGrouped(refinerConfig) else ungroupedBlock">
-                <search-refiner [classes]="'h-100'" [maxCols]="4" [isSearching]="isSearching" [refinerConfig]="refinerConfig" (onApplyFilter)="applyRefiner($event)" ></search-refiner>
+          <ng-template #groupedBlock>
+            <div class="container-fluid" id="grouped-filter">
+              <ng-container *ngFor="let refinerConfig of currentParam.getRefinerConfigs(); index as i; first as isFirst">
+                  <search-refiner [classes]="'h-100'" [maxCols]="4" [isSearching]="isSearching" [refinerConfig]="refinerConfig" (onApplyFilter)="applyRefiner($event)" ></search-refiner>
               </ng-container>
-            </ng-container>
-          </div>
+            </div>
+          </ng-template>
         </div>
       </div>
     </div>

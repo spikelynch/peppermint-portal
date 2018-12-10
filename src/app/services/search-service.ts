@@ -84,6 +84,8 @@ export class SearchParams {
   showResult: boolean = true;
   groupSearchRefinersBy: string;
   maxGroupedResultsCount: number;
+  hasAppliedRefiner: boolean = false;
+  hideFiltersWhenSearching: boolean = false;
 
   constructor(recType: string) {
     this.recordType = recType;
@@ -143,6 +145,12 @@ export class SearchParams {
     }
   }
 
+  clearRefinerActiveValues() {
+    _.each(this.activeRefiners, (activeRefiner: SearchRefiner) => {
+      activeRefiner.activeValue = null;
+    });
+  }
+
   parseRefiner(queryStr:string) {
     queryStr = decodeURI(queryStr);
     let refinerValues = {};
@@ -172,6 +180,9 @@ export class SearchParams {
     _.forEach(this.activeRefiners, (refiner: SearchRefiner) => {
       if (!hasActive && (!_.isEmpty(refiner.value))) {
         hasActive = true;
+      }
+      if (hasActive) {
+        return false;
       }
     });
     return hasActive;

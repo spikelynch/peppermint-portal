@@ -28,6 +28,7 @@ export class SearchComponent {
   currentPage: number = 1;
   paginationSize: number;
   showFacets: boolean = false;
+  hideFiltersWhenSearching: boolean = false;
 
   constructor(
     protected translationService: TranslationService,
@@ -65,6 +66,7 @@ export class SearchComponent {
     searchParam.rows = configSearch.rows;
     searchParam.groupSearchRefinersBy = configSearch.groupSearchRefinersBy;
     searchParam.maxGroupedResultsCount = configSearch.maxGroupedResultsCount;
+    searchParam.hideFiltersWhenSearching = configSearch.hideFiltersWhenSearching;
     this.paramMap[recordType] = searchParam;
   }
 
@@ -107,6 +109,7 @@ export class SearchComponent {
         } else {
           this.searchCardClass = 'text-center bg-warning search-panel';
         }
+        this.hideFiltersWhenSearching = this.currentParam.hideFiltersWhenSearching;
       } else {
         this.currentParam.setFacetValues(this.searchResults.facets);
         this.currentParam.searchText = '';
@@ -120,6 +123,8 @@ export class SearchComponent {
     this.currentParam.rows = 0;
     this.currentParam.searchText = '*';
     this.currentParam.showResult = false;
+    this.currentParam.hasAppliedRefiner = false;
+    this.currentParam.maxGroupedResultsCount = this.config[this.recordType].maxGroupedResultsCount;
     return this.getSearchData();
   }
 
@@ -127,6 +132,7 @@ export class SearchComponent {
     this.isSearching = true;
     this.currentParam.showResult = true;
     this.showFacets = false;
+    this.currentParam.maxGroupedResultsCount = 0;
     return this.getSearchData();
   }
 
@@ -153,13 +159,26 @@ export class SearchComponent {
       // clear the active value so back button Works
       refinerConfig.activeValue = null;
       actualParam.addActiveRefiner(actualTargetRefiner);
-      actualParam.searchText = _.isEmpty(this.currentParam.searchText) ? '*' : '';
+      actualParam.searchText = _.isEmpty(this.currentParam.searchText) ? '*' : this.currentParam.searchText;
+      actualParam.showResult = true;
+      actualParam.hasAppliedRefiner = true;
+      actualParam.start = 0;
       this.currentParam = actualParam;
       this.goSearch(targetRefiner.targetRecordType);
     } else {
+      this.currentParam.hasAppliedRefiner = true;
       this.currentParam.addActiveRefiner(refinerConfig);
+      this.currentParam.start = 0;
+      this.currentParam.searchText = _.isEmpty(this.currentParam.searchText) ? '*' : this.currentParam.searchText;
       this.goSearch();
     }
+  }
+
+  clearAppliedRefiners(event:any) {
+    event.preventDefault();
+    this.currentParam.hasAppliedRefiner = false;
+    this.currentParam.clearRefinerActiveValues();
+    this.goSearch();
   }
 
   ngOnInit() {
@@ -194,6 +213,7 @@ export class SearchComponent {
 
   setRecordType(rType) {
     this.recordType = rType;
+    this.showFacets = false;
     this.router.navigate(['search'], {queryParams: {recordType: this.recordType}} );
   }
 
@@ -203,11 +223,17 @@ export class SearchComponent {
   }
 
   canShowResultSection() {
-    return this.searchResults && !this.isSearching && this.searchResults.numFound > 0 && this.currentParam.showResult == true
+    return this.searchResults && !this.isSearching && this.currentParam.showResult == true
   }
 
-  isGrouped(refinerConfig) {
-    return refinerConfig && refinerConfig.value &&  !_.isArray(refinerConfig.value);
+  isGrouped(refinerConfigs) {
+    let groupByConfig = refinerConfigs;
+    if (_.isArray(refinerConfigs)) {
+      groupByConfig = _.find(refinerConfigs, (r) => {
+        return r.name == this.currentParam.groupSearchRefinersBy;
+      });
+    }
+    return groupByConfig && groupByConfig.value &&  !_.isEmpty(groupByConfig.value);
   }
   //
   // getBreadcrumb() {
