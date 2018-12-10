@@ -193,7 +193,7 @@ export class SolrSearchResult implements SearchResult {
           if (params.maxGroupedResultsCount > 0) {
             maxEntries = params.maxGroupedResultsCount * 2;
           }
-          for (var i=0; i < maxEntries ) {
+          for (var i=0; i < maxEntries; ) {
             const facet_val = facet_field_val[i++];
             const facet_count = facet_field_val[i++];
             values.push(new SolrFacetValue(facet_val, facet_count));
