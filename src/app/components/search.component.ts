@@ -194,21 +194,32 @@ export class SearchComponent {
   getSearchResultForDisplay() {
     let searchConfig = this.config[this.recordType];
     let displayLineConfig = searchConfig.searchResultDisplay || this.config.defaultSearchResultDisplay;
-    return _.map(this.searchResults.results, (res) => {
-      if (this.recordType != res.record_type_s) {
-        const sConfig = this.config[res.record_type_s]
-        displayLineConfig = sConfig.searchResultDisplay || this.config.defaultSearchResultDisplay;
+    const results = [];
+    _.each(this.searchResults.results, (res) => {
+      if (this.isValidRecordType(res.record_type_s)) {
+        if (this.recordType != res.record_type_s) {
+          const sConfig = this.config[res.record_type_s]
+          displayLineConfig = sConfig.searchResultDisplay || this.config.defaultSearchResultDisplay;
+        }
+        const templateOpts = {
+          imports: {data: {}, moment: moment, utilService: this.utilService}
+        };
+        const searchRes = {displayLines: [], res: res, routerLink: '/detail/' + encodeURIComponent(res['id'])};
+        _.assign(templateOpts.imports.data, res);
+        _.each(displayLineConfig, (dispLineConfig) => {
+          searchRes.displayLines.push({template: _.template(dispLineConfig.template, templateOpts)(), link: dispLineConfig.link, field: dispLineConfig.field, type: dispLineConfig.type});
+        });
+        results.push(searchRes)
       }
-      const templateOpts = {
-        imports: {data: {}, moment: moment, utilService: this.utilService}
-      };
-      const searchRes = {displayLines: [], res: res, routerLink: '/detail/' + encodeURIComponent(res['id'])};
-      _.assign(templateOpts.imports.data, res);
-      _.each(displayLineConfig, (dispLineConfig) => {
-        searchRes.displayLines.push({template: _.template(dispLineConfig.template, templateOpts)(), link: dispLineConfig.link, field: dispLineConfig.field, type: dispLineConfig.type});
-      });
-      return searchRes;
     });
+    return results;
+  }
+
+  isValidRecordType(recType) {
+    const found = _.find(this.config.recordTypes, (type) => {
+      return recType == type;
+    });
+    return !_.isUndefined(found)
   }
 
   setRecordType(rType) {
