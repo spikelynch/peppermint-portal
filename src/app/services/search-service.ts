@@ -102,6 +102,11 @@ export class SearchParams {
     });
   }
 
+  resetCursor() {
+    this.start = 0;
+    this.hasAppliedRefiner = false;
+  }
+
   getRefinerConfig(name: string) {
     return _.find(this.refinerConfig, (config) => {
       return config.name == name;

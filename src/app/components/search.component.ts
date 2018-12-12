@@ -77,9 +77,7 @@ export class SearchComponent {
         if (!_.isEmpty(searchText) && !_.isEmpty(params.get('recordType'))) {
           this.recordType = params.get('recordType');
           const configSearch = this.config[this.recordType];
-          if (_.isUndefined(this.paramMap) || _.isUndefined(this.paramMap[this.recordType])) {
-            this.initSearchConfig(this.recordType, this.config);
-          }
+          this.updateParamWithType();
           this.currentParam = this.paramMap[this.recordType];
           this.currentParam.searchText = searchText;
           this.currentParam.rows = (_.isUndefined(params.get('rows') || _.isEmpty(params.get('rows')))) ? configSearch.rows : _.toInteger(params.get('rows'));
@@ -147,7 +145,7 @@ export class SearchComponent {
 
   applyRefiner(refinerConfig: SearchRefiner) {
     if (this.isGrouped(refinerConfig)) {
-      const facetName = refinerConfig.activeValue.name;
+      const facetName = refinerConfig.name;
       const targetRefiner = this.currentParam.getRefinerConfig(facetName);
       // now use the target type to switch params...
       if (_.isUndefined(this.paramMap[targetRefiner.targetRecordType])) {
@@ -161,14 +159,16 @@ export class SearchComponent {
       actualParam.addActiveRefiner(actualTargetRefiner);
       actualParam.searchText = _.isEmpty(this.currentParam.searchText) ? '*' : this.currentParam.searchText;
       actualParam.showResult = true;
-      actualParam.hasAppliedRefiner = true;
       actualParam.start = 0;
+      this.currentPage = 1;
       this.currentParam = actualParam;
       this.goSearch(targetRefiner.targetRecordType);
     } else {
       this.currentParam.hasAppliedRefiner = true;
       this.currentParam.addActiveRefiner(refinerConfig);
       this.currentParam.start = 0;
+      this.currentParam.showResult = true;
+      this.currentPage = 1;
       this.currentParam.searchText = _.isEmpty(this.currentParam.searchText) ? '*' : this.currentParam.searchText;
       this.goSearch();
     }
@@ -176,6 +176,7 @@ export class SearchComponent {
 
   clearAppliedRefiners(event:any) {
     event.preventDefault();
+    this.currentPage = 1;
     this.currentParam.hasAppliedRefiner = false;
     this.currentParam.clearRefinerActiveValues();
     this.goSearch();
@@ -222,10 +223,20 @@ export class SearchComponent {
     return !_.isUndefined(found)
   }
 
+  updateParamWithType() {
+    if (_.isUndefined(this.paramMap) || _.isUndefined(this.paramMap[this.recordType])) {
+      this.initSearchConfig(this.recordType, this.config);
+    }
+    this.currentParam = this.paramMap[this.recordType];
+  }
+
   setRecordType(rType) {
     this.recordType = rType;
     this.showFacets = false;
-    this.router.navigate(['search'], {queryParams: {recordType: this.recordType}} );
+    this.updateParamWithType();
+    this.currentParam.resetCursor();
+    this.currentPage = 1;
+    this.router.navigate(['search'], {queryParams: {recordType: this.recordType }} );
   }
 
   pageChanged(event:any):void {
@@ -244,7 +255,7 @@ export class SearchComponent {
         return r.name == this.currentParam.groupSearchRefinersBy;
       });
     }
-    return groupByConfig && groupByConfig.value &&  !_.isEmpty(groupByConfig.value);
+    return groupByConfig && groupByConfig.value &&  !_.isEmpty(groupByConfig.value) && !_.isUndefined(groupByConfig.targetRecordType);
   }
   //
   // getBreadcrumb() {
