@@ -145,7 +145,7 @@ export class SearchComponent {
 
   applyRefiner(refinerConfig: SearchRefiner) {
     if (this.isGrouped(refinerConfig)) {
-      const facetName = refinerConfig.name;
+      const facetName = refinerConfig.activeValue.name;
       const targetRefiner = this.currentParam.getRefinerConfig(facetName);
       // now use the target type to switch params...
       if (_.isUndefined(this.paramMap[targetRefiner.targetRecordType])) {
@@ -255,7 +255,7 @@ export class SearchComponent {
         return r.name == this.currentParam.groupSearchRefinersBy;
       });
     }
-    return groupByConfig && groupByConfig.value &&  !_.isEmpty(groupByConfig.value) && !_.isUndefined(groupByConfig.targetRecordType);
+    return groupByConfig && groupByConfig.value &&  !_.isEmpty(groupByConfig.value) && !_.isArray(groupByConfig.value);
   }
   //
   // getBreadcrumb() {
