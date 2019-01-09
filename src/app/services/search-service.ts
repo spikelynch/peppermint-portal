@@ -37,6 +37,7 @@ export interface SearchResult {
   start:number;
   results: any[];
   facets: SearchFacet[];
+  facetGroupNames: string[];
 }
 
 export interface SearchService {
@@ -53,6 +54,7 @@ export class SearchRefiner {
   typeLabel: string;
   activeValue: any;
   targetRecordType: string;
+  facetCtr: number = 0;
 
   constructor(opts: any = {}) {
     this.name = opts.name;
@@ -86,6 +88,7 @@ export class SearchParams {
   maxGroupedResultsCount: number;
   hasAppliedRefiner: boolean = false;
   hideFiltersWhenSearching: boolean = false;
+  sortGroupHeadersBy: any;
 
   constructor(recType: string) {
     this.recordType = recType;

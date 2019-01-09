@@ -21,6 +21,7 @@ import { Injectable, Inject} from '@angular/core';
 import { Location } from '@angular/common';
 import { TranslateI18Next } from 'ngx-i18next';
 import { Subject } from 'rxjs/Subject';
+import * as _ from 'lodash';
 /**
  * Translation service...
  *
@@ -76,5 +77,23 @@ export class TranslationService {
 
   t(key: string) {
     return this.translateI18Next.translate(key);
+  }
+
+  hasKey(key: string) {
+    return this.t(key) != key;
+  }
+
+  getFacetHumanLabel(type: string) {
+    let label = type;
+    if (type.indexOf('https___schema_org_') != -1) {
+      label = `schema.org - ${_.startCase(_.trim(_.replace(type, 'https___schema_org_', '')))}`
+    }
+    if (type.indexOf('https___pcdm_org_models_') != -1) {
+      label = `pcdm.org - ${_.startCase(_.trim(_.replace(type, 'https___pcdm_org_models_', '')))}`
+    }
+    if (label && this.hasKey(label)) {
+      return this.t(label);
+    }
+    return label;
   }
 }

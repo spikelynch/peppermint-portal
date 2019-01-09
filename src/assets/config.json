@@ -1,12 +1,10 @@
 {
   "recordTypes": [
-    "all",
-    "dataset",
-    "person"
+    "all"
   ],
   "all": {
     "solrUrl": "http://localhost:8980/",
-    "mainQuery": "?q=record_type_s:* AND (<%= queryFields %>)<%= fieldList %>,[child%20parentFilter=<%= queryFields %>]&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
+    "mainQuery": "?q=<%= queryFields %>&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
     "queryFieldsBoolOperator": " OR ",
     "queryFieldValPrefix": "",
     "queryFieldValSuffix": "",
@@ -19,6 +17,7 @@
     "groupSearchRefinersBy": "type_______facet_multi",
     "maxGroupedResultsCount": 5,
     "hideFiltersWhenSearching": true,
+    "sortGroupHeadersBy": ["name"],
     "searchRefiners": [
       {
         "name": "type_______facet_multi",
@@ -33,7 +32,7 @@
         "type": "facet",
         "typeLabel": null,
         "alwaysActive": true,
-        "targetRecordType": "dataset"
+        "targetRecordType": "https___schema_org_Dataset"
       },
       {
         "name": "https___schema_org_publisher_______https___schema_org_Dataset_______facet",
@@ -41,7 +40,7 @@
         "type": "facet",
         "typeLabel": null,
         "alwaysActive": true,
-        "targetRecordType": "dataset"
+        "targetRecordType": "https___schema_org_Dataset"
       },
       {
         "name": "https___schema_org_birthPlace_______https___schema_org_Person_______facet",
@@ -49,7 +48,7 @@
         "type": "facet",
         "typeLabel": null,
         "alwaysActive": true,
-        "targetRecordType": "person"
+        "targetRecordType": "https___schema_org_Person"
       },
       {
         "name": "https___schema_org_birthDate_______https___schema_org_Person_______facet",
@@ -57,13 +56,13 @@
         "type": "facet",
         "typeLabel": null,
         "alwaysActive": true,
-        "targetRecordType": "person"
+        "targetRecordType": "https___schema_org_Person"
       }
     ]
   },
-  "dataset": {
+  "https___schema_org_Dataset": {
     "solrUrl": "http://localhost:8980/",
-    "mainQuery": "?q=record_type_s:dataset AND (<%= queryFields %>)<%= fieldList %>,[child%20parentFilter=record_type_s:dataset]&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
+    "mainQuery": "?q=type_______facet_multi:<%= type %> AND (<%= queryFields %>)<%= fieldList %>,[child%20parentFilter=type:<%= type %>]&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
     "queryFieldsBoolOperator": " OR ",
     "queryFieldValPrefix": "",
     "queryFieldValSuffix": "",
@@ -89,11 +88,18 @@
         "typeLabel": null,
         "alwaysActive": true
       }
+    ],
+    "searchResultDisplay": [
+      {"link": true, "type": "external", "field": "id", "template": "<%= data['https___schema_org_name'] %>", "class":"text-justify" },
+      {"template": "<p></p>" },
+      {"template": "<p><%= data['https___schema_org_description'] %></p>",  "class":"text-justify" },
+      {"template": "<p></p>" },
+      {"template": "<p>Published: <%= moment(data['https___schema_org_datePublished'][0]) %> <%= !_.isEmpty(utilService.getChildDocWithType(data, 'https___schema_org_license', null)) ? '| License: ' + utilService.getChildDocWithType(data, 'https___schema_org_license')['https___schema_org_name'][0] : '' %></p>",  "class":"text-justify" }
     ]
   },
-  "person": {
+  "https___schema_org_Person": {
     "solrUrl": "http://localhost:8980/",
-    "mainQuery": "?q=record_type_s:person AND (<%= queryFields %>)<%= fieldList %>&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
+    "mainQuery": "?q=type_______facet_multi:<%= type %> AND (<%= queryFields %>)<%= fieldList %>&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
     "queryFieldsBoolOperator": " OR ",
     "queryFieldValPrefix": "",
     "queryFieldValSuffix": "",
@@ -126,11 +132,26 @@
       {"template": "<p><%= data['https___schema_org_description'] %></p>",  "class":"text-justify" }
     ]
   },
-  "defaultSearchResultDisplay": [
-    {"link": true, "type": "external", "field": "id", "template": "<%= data['https___schema_org_name'] %>", "class":"text-justify" },
-    {"template": "<p></p>" },
-    {"template": "<p><%= data['https___schema_org_description'] %></p>",  "class":"text-justify" },
-    {"template": "<p></p>" },
-    {"template": "<p>Published: <%= moment(data['https___schema_org_datePublished'][0]) %> <%= !_.isEmpty(utilService.getChildDocWithType(data, 'https___schema_org_license', null)) ? '| License: ' + utilService.getChildDocWithType(data, 'https___schema_org_license')['https___schema_org_name'][0] : '' %></p>",  "class":"text-justify" }
-  ]
+  "default": {
+    "solrUrl": "http://localhost:8980/",
+    "mainQuery": "?q=type_______facet_multi:<%= type %> AND (<%= queryFields %>)<%= fieldList %>,[child%20parentFilter=type:<%= type %>]&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
+    "queryFieldsBoolOperator": " OR ",
+    "queryFieldValPrefix": "",
+    "queryFieldValSuffix": "",
+    "queryFields": [
+      "main_search"
+    ],
+    "fieldList": "&fl=*",
+    "rows": 10,
+    "paginationSize": 10,
+    "maxGroupedResultsCount": 5,
+    "searchResultDisplay": [
+      {"template": "<p class='h4 text-white bg-secondary p-3'><%= data['https___schema_org_name'] %></p>", "class":"text-justify" },
+      {"template": "<p><%= data['https___schema_org_description'] %></p>",  "class":"text-justify" },
+      {"template": "<p class='h6'><%= translationService.t('id-label') %>: <%= data['id'] %></p>", "class":"text-justify" },
+      {"template": "<p class='h6'><%= translationService.t('type-label') %>: <%= utilService.getArrAsLinks(data['type'], '_blank', '<ul>', '</ul>', '<li>', '</li>') %> </p>"},
+      {"template": "<p></p>" },
+      {"template": "<p><%= utilService.propertyDump(data, true, ['^type', '^_', '$_str', '^record_', 'id', 'https___schema_org_name', 'https___schema_org_description', 'main_search'], translationService) %> </p>"}
+    ]
+  }
 }

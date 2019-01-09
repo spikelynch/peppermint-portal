@@ -1,36 +1,43 @@
 <ng-container *ngIf="isGrouped() else ungroupedBlock">
   <div class="row">
     <ng-container *ngFor="let facetValue of getGroupsAsArray(refinerConfig.value)">
-      <ng-container *ngIf="hasValue(facetValue.childFacets)">
+      <ng-container>
           <!-- top level header: group name -->
           <div class="col">
-            <h2 *ngIf="refinerConfig.title == '@value'">{{ facetValue.name | translate }} </h2>
+            <div class="card" *ngIf="refinerConfig.title == '@value'">
+              <div class="card-body">
+                <a class="h4 type-header" href='' (click)="setRecordType($event, facetValue.name)">{{ translationService.getFacetHumanLabel(facetValue.name) }} ({{facetValue.groupCount}})</a>
+              </div>
+            </div>
           </div>
           <div class="w-100"></div>
           <!-- the individual facets -->
-          <ng-container *ngFor="let childFacet of getGroupsAsArray(facetValue.childFacets); index as i;">
-            <div class="col">
-              <div class="card h-100" >
-                <div class="card-header text-center bg-success search-panel">
-                  {{ childFacet.name | translate }}
-                </div>
-                <div class="card-body">
-                  <!-- for link facets only -->
-                  <ul class="list-unstyled">
-                    <ng-container *ngFor="let childFacetValue of childFacet.value">
-                      <li *ngIf="childFacetValue.count > 0 && childFacetValue.value">
-                        <a href="" (click)="applyFilter($event, {name: childFacet.name, value: childFacetValue.value})"> {{ childFacetValue.value }} ({{ childFacetValue.count }})</a>
-                      </li>
-                    </ng-container>
-                  </ul>
+          <ng-container  *ngIf="hasValue(facetValue.childFacets)">
+            <ng-container *ngFor="let childFacet of getGroupsAsArray(facetValue.childFacets); index as i;">
+              <div class="col">
+                <div class="card h-100" >
+                  <div class="card-header text-center bg-success search-panel">
+                    {{ childFacet.name | translate }}
+                  </div>
+                  <div class="card-body">
+                    <!-- for link facets only -->
+                    <ul class="list-unstyled">
+                      <ng-container *ngFor="let childFacetValue of childFacet.value">
+                        <li *ngIf="childFacetValue.count > 0 && childFacetValue.value">
+                          <a href="" (click)="applyFilter($event, {name: childFacet.name, value: childFacetValue.value})"> {{ childFacetValue.value }} ({{ childFacetValue.count }})</a>
+                        </li>
+                      </ng-container>
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </div>
-            <ng-container *ngIf="((i+1)%4) == 0">
-              <div class="w-100"></div>
+              <ng-container *ngIf="((i+1)%4) == 0">
+                <div class="w-100"></div>
+              </ng-container>
             </ng-container>
           </ng-container>
       </ng-container>
+
       <div class="w-100"></div>
     </ng-container>
   </div>

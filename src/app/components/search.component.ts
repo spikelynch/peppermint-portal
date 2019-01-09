@@ -18,7 +18,7 @@ import * as moment from 'moment';
 })
 export class SearchComponent {
   searchResults: SearchResult;
-  recordType: any = 'dataset';
+  recordType: any;
   config: any;
   translatorReady: boolean;
   searchCardClass: string;
@@ -29,6 +29,7 @@ export class SearchComponent {
   paginationSize: number;
   showFacets: boolean = false;
   hideFiltersWhenSearching: boolean = false;
+  loadedRecordTypes: boolean = false;
 
   constructor(
     protected translationService: TranslationService,
@@ -56,7 +57,7 @@ export class SearchComponent {
   initSearchConfig(recordType, config) {
     const searchParam = new SearchParams(recordType);
     // build the config...
-    const configSearch = config[recordType];
+    const configSearch = config[recordType] || config['default'];
     const searchFilterConfig = [];
     _.each(configSearch.searchRefiners, (searchConfig:any) => {
       searchFilterConfig.push(new SearchRefiner(searchConfig));
@@ -70,13 +71,48 @@ export class SearchComponent {
     this.paramMap[recordType] = searchParam;
   }
 
+  initRecordTypes() {
+    const baseRecType = 'all';
+    if (_.isUndefined(this.paramMap) || _.isUndefined(this.paramMap[baseRecType])) {
+      this.initSearchConfig(baseRecType, this.config);
+    }
+    const initParam = _.clone(this.paramMap[baseRecType])
+    initParam.rows = 0;
+    initParam.searchText = '*';
+    initParam.showResult = false;
+    initParam.hasAppliedRefiner = false;
+    initParam.maxGroupedResultsCount = this.paramMap[baseRecType].maxGroupedResultsCount;
+    initParam.sortGroupHeadersBy = this.paramMap[baseRecType].sortGroupHeadersBy;
+    const sub = this.searchService.search(initParam).subscribe((res:any) => {
+      const data = this.searchService.extractData(res, null, initParam);
+      console.log('Got record types init:')
+      console.log(data);
+      // update the record types config depending on the major groups..
+      _.each(data.facetGroupNames, (fname:string) => {
+        this.config.recordTypes.push(fname);
+      });
+      this.loadedRecordTypes = true;
+      sub.unsubscribe();
+    });
+  }
+
+  getRecordTypeConfig(rType:string = null) {
+    if (!rType) {
+      rType = this.recordType
+    }
+    return _.isUndefined(this.config[rType]) ? this.config.default : this.config[rType];
+  }
+
   startSearch() {
+    if (!this.loadedRecordTypes) {
+      this.initRecordTypes();
+    }
     this.route.queryParamMap.pipe(
       switchMap((params: ParamMap) => {
         const searchText = _.trim(params.get('searchText'));
         if (!_.isEmpty(searchText) && !_.isEmpty(params.get('recordType'))) {
           this.recordType = params.get('recordType');
-          const configSearch = this.config[this.recordType];
+          const configSearch = this.getRecordTypeConfig();
           this.updateParamWithType();
           this.currentParam = this.paramMap[this.recordType];
           this.currentParam.searchText = searchText;
@@ -122,7 +158,8 @@ export class SearchComponent {
     this.currentParam.searchText = '*';
     this.currentParam.showResult = false;
     this.currentParam.hasAppliedRefiner = false;
-    this.currentParam.maxGroupedResultsCount = this.config[this.recordType].maxGroupedResultsCount;
+    this.currentParam.maxGroupedResultsCount = this.paramMap[this.recordType].maxGroupedResultsCount;
+    this.currentParam.sortGroupHeadersBy = this.paramMap[this.recordType].sortGroupHeadersBy;
     return this.getSearchData();
   }
 
@@ -192,26 +229,36 @@ export class SearchComponent {
     });
   }
 
+  getFirstElem(val) {
+    return _.isArray(val) ? val[0] : val;
+  }
+
   getSearchResultForDisplay() {
-    let searchConfig = this.config[this.recordType];
-    let displayLineConfig = searchConfig.searchResultDisplay || this.config.defaultSearchResultDisplay;
+    let searchConfig = this.getRecordTypeConfig();
+    let displayLineConfig = searchConfig.searchResultDisplay || this.config.default.searchResultDisplay;
     const results = [];
     _.each(this.searchResults.results, (res) => {
-      if (this.isValidRecordType(res.record_type_s)) {
-        if (this.recordType != res.record_type_s) {
-          const sConfig = this.config[res.record_type_s]
-          displayLineConfig = sConfig.searchResultDisplay || this.config.defaultSearchResultDisplay;
-        }
-        const templateOpts = {
-          imports: {data: {}, moment: moment, utilService: this.utilService}
-        };
-        const searchRes = {displayLines: [], res: res, routerLink: '/detail/' + encodeURIComponent(res['id'])};
-        _.assign(templateOpts.imports.data, res);
-        _.each(displayLineConfig, (dispLineConfig) => {
-          searchRes.displayLines.push({template: _.template(dispLineConfig.template, templateOpts)(), link: dispLineConfig.link, field: dispLineConfig.field, type: dispLineConfig.type});
+      const typeVal = this.getFirstElem(res.type);
+      if (this.recordType != typeVal ) {
+        // keep looping to get a non-default dislay config
+        _.each(res.type, (t:string) => {
+          const sConfig = this.config[typeVal];
+          displayLineConfig = (sConfig && sConfig.searchResultDisplay) ? sConfig.searchResultDisplay : this.config.default.searchResultDisplay;
+          if (displayLineConfig != searchConfig.searchResultDisplay) {
+            // stop search
+            return false;
+          }
         });
-        results.push(searchRes)
       }
+      const templateOpts = {
+        imports: {data: {}, moment: moment, utilService: this.utilService, translationService: this.translationService}
+      };
+      const searchRes = {displayLines: [], res: res, routerLink: '/detail/' + encodeURIComponent(res['id'])};
+      _.assign(templateOpts.imports.data, res);
+      _.each(displayLineConfig, (dispLineConfig) => {
+        searchRes.displayLines.push({template: _.template(dispLineConfig.template, templateOpts)(), link: dispLineConfig.link, field: dispLineConfig.field, type: dispLineConfig.type});
+      });
+      results.push(searchRes)
     });
     return results;
   }
@@ -230,13 +277,18 @@ export class SearchComponent {
     this.currentParam = this.paramMap[this.recordType];
   }
 
-  setRecordType(rType) {
+  setRecordType(rType, browse:boolean = false) {
     this.recordType = rType;
     this.showFacets = false;
     this.updateParamWithType();
     this.currentParam.resetCursor();
     this.currentPage = 1;
-    this.router.navigate(['search'], {queryParams: {recordType: this.recordType }} );
+    if (browse) {
+      this.currentParam.searchText = '*';
+      this.goSearch();
+    } else {
+      this.router.navigate(['search'], {queryParams: {recordType: this.recordType }} );
+    }
   }
 
   pageChanged(event:any):void {
@@ -248,6 +300,10 @@ export class SearchComponent {
     return this.searchResults && !this.isSearching && this.currentParam.showResult == true
   }
 
+  canFilterOrBrowse() {
+    return this.currentParam.activeRefiners.length > 0;
+  }
+
   isGrouped(refinerConfigs) {
     let groupByConfig = refinerConfigs;
     if (_.isArray(refinerConfigs)) {
@@ -256,6 +312,18 @@ export class SearchComponent {
       });
     }
     return groupByConfig && groupByConfig.value &&  !_.isEmpty(groupByConfig.value) && !_.isArray(groupByConfig.value);
+  }
+
+  shouldBreak(refinerConfig, max) {
+    return ((refinerConfig.facetCtr++) % max) == 0;
+  }
+
+  getSearchRecordTypeLabel(rType:string) {
+    const rTypeKey = `search-${rType}`;
+    if (this.translationService.hasKey(rTypeKey)) {
+      return this.translationService.t(rTypeKey);
+    }
+    return `Search ${this.translationService.getFacetHumanLabel(rType)}`;
   }
   //
   // getBreadcrumb() {

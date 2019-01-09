@@ -4,12 +4,12 @@
     <div class="input-group mb-3">
       <input [(ngModel)]="currentParam.searchText" type="text" class="form-control" [attr.aria-label]="'search-text' | translate" [attr.placeholder]="'search-text' | translate" (keyup.enter)="goSearch()">
       <div class="input-group-append">
-        <button [disabled]="isSearching || !currentParam.searchText" [innerHTML]="('search-'+recordType) | translate" (click)="goSearch()" class="btn btn-outline-secondary" type="submit"></button>
+        <button [disabled]="isSearching || !currentParam.searchText" [innerHTML]="getSearchRecordTypeLabel(recordType)" (click)="goSearch()" class="btn btn-outline-secondary" type="submit"></button>
         <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
            <span class="sr-only">Toggle Search Type</span>
          </button>
         <div class="dropdown-menu">
-          <button *ngFor="let rType of config.recordTypes" class="dropdown-item" (click)="setRecordType(rType)" [innerHTML]="('search-' + rType) | translate"></button>
+          <button *ngFor="let rType of config.recordTypes" class="dropdown-item" (click)="setRecordType(rType)" [innerHTML]="getSearchRecordTypeLabel(rType)"></button>
         </div>
       </div>
     </div>
@@ -41,7 +41,7 @@
   </div>
    -->
   <!-- Browse / Facets / Refiners -->
-  <div class="row" id="browse-accordion" *ngIf="!hideFiltersWhenSearching">
+  <div class="row" id="browse-accordion" *ngIf="!hideFiltersWhenSearching && canFilterOrBrowse()">
     <div class="col-md-12">
       <div class="card">
         <div class="card-header browse-panel">
@@ -61,11 +61,11 @@
         <div id="browse-collapse" class="card-body collapse" aria-labelledby="browse-heading" data-parent="#browse-accordion">
           <!-- Ungrouped -->
           <div id="ungrouped-filter" class="row container-fluid" *ngIf="!isGrouped(currentParam.getRefinerConfigs()) else groupedBlock">
-            <ng-container *ngFor="let refinerConfig of currentParam.getRefinerConfigs(); index as i; first as isFirst">
+            <ng-container *ngFor="let refinerConfig of currentParam.getRefinerConfigs(); index as i; first as isFirst;">
               <div class="col">
                 <search-refiner [classes]="'h-100'" [isSearching]="isSearching" [refinerConfig]="refinerConfig" (onApplyFilter)="applyRefiner($event)" ></search-refiner>
               </div>
-              <ng-container *ngIf="((i+1)%4) == 0">
+              <ng-container *ngIf="shouldBreak(refinerConfig, 4)">
                 <div class="w-100"></div>
               </ng-container>
             </ng-container>
@@ -74,7 +74,7 @@
           <ng-template #groupedBlock>
             <div class="container-fluid" id="grouped-filter">
               <ng-container *ngFor="let refinerConfig of currentParam.getRefinerConfigs(); index as i; first as isFirst">
-                  <search-refiner [classes]="'h-100'" [maxCols]="4" [isSearching]="isSearching" [refinerConfig]="refinerConfig" (onApplyFilter)="applyRefiner($event)" ></search-refiner>
+                  <search-refiner (onSetRecordType)="setRecordType($event, true)" [classes]="'h-100'" [maxCols]="4" [isSearching]="isSearching" [refinerConfig]="refinerConfig" (onApplyFilter)="applyRefiner($event)" [sortGroupHeadersBy]="currentParam.sortGroupHeadersBy" [translationService]="translationService" ></search-refiner>
               </ng-container>
             </div>
           </ng-template>

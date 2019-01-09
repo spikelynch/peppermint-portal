@@ -1,6 +1,7 @@
 import { Component, Inject, Input, Output, ElementRef, EventEmitter } from '@angular/core';
 import { SearchRefiner} from '../services/search-service';
-import * as _ from "lodash";
+import { TranslationService } from '../services/translation-service';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'search-refiner',
@@ -11,8 +12,11 @@ export class SearchRefinerComponent {
   @Input() isSearching: boolean;
   @Input() classes: string;
   @Input() maxCols: number;
+  @Input() sortGroupHeadersBy: any;
+  @Input() translationService: TranslationService;
 
   @Output() onApplyFilter: EventEmitter<any> = new EventEmitter<any>();
+  @Output() onSetRecordType: EventEmitter<any> = new EventEmitter<any>();
 
   applyFilter(event:any, refinerValue:any = null) {
     event.preventDefault();
@@ -20,6 +24,11 @@ export class SearchRefinerComponent {
       this.refinerConfig.activeValue = refinerValue;
       this.onApplyFilter.emit(this.refinerConfig);
     }
+  }
+
+  setRecordType(event: any, rType: string) {
+    event.preventDefault();
+    this.onSetRecordType.emit(rType);
   }
 
   hasValue(val: any = null) {
@@ -35,7 +44,7 @@ export class SearchRefinerComponent {
     _.forOwn(val, (grpVal, grpName) => {
       g.push(grpVal);
     });
-    return g;
+    return _.sortBy(g, this.sortGroupHeadersBy);
   }
 
 }

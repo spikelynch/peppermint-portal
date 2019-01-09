@@ -2,8 +2,8 @@
   "title": "Peppermint",
   "search-text": "Keyword(s)",
   "search-all": "Search All",
-  "search-dataset": "Search Dataset",
-  "search-person": "Search Person",
+  "search-https://schema.org/Dataset": "Search Dataset",
+  "search-https://schema.org/Person": "Search Person",
   "loading-alt-text": "Loading...",
   "search-results": "Search Results: {numFound}",
   "page-not-found": "Apologies, this page seems to be missing.",
@@ -17,10 +17,12 @@
   "facet-label": "Filter",
   "search-menu-label": "Search",
   "clear-all-label": "Clear All",
-  "https___schema_org_Person": "Person",
-  "https___schema_org_Dataset": "Dataset",
+  "schema.org - Person": "schema.org - Person",
+  "schema.org - Dataset": "schema.org - Dataset",
   "https___schema_org_keywords_______https___schema_org_Dataset_______facet_multi": "Keywords",
   "https___schema_org_publisher_______https___schema_org_Dataset_______facet": "Publishers",
   "https___schema_org_birthPlace_______https___schema_org_Person_______facet": "Birth Place",
-  "https___schema_org_birthDate_______https___schema_org_Person_______facet": "Birth Date"
+  "https___schema_org_birthDate_______https___schema_org_Person_______facet": "Birth Date",
+  "id-label": "ID",
+  "type-label": "Type"
 }

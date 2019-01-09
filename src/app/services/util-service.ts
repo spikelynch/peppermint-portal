@@ -21,6 +21,8 @@ import { Injectable } from '@angular/core';
 import * as moment from 'moment';
 import * as _ from "lodash";
 import * as luceneEscapeQuery from 'lucene-escape-query';
+
+declare var document: any;
 /**
  * Utility Fns exposed in templates, etc.
  *
@@ -37,4 +39,52 @@ export class UtilService {
     const match = _.find(data._childDocuments_, (c) => { return c['type_s'] == type});
     return _.isUndefined(match) ? defVal : match;
   }
+
+  getArrAsLinks(arr: any[], target:string, wrapperPrefix: string, wrapperSuffix: string, itemWrapperPrefix: string, itemWrapperSuffix: string) {
+    const linkArr = [];
+    _.each(arr, (item:any) => {
+      linkArr.push(`${itemWrapperPrefix}<a href='${item}' ${target ? `target='${target}'` : ''}>${item}</a>${itemWrapperSuffix}`);
+    });
+    return `${wrapperPrefix}${linkArr.join(' ')}${wrapperSuffix}`;
+  }
+
+  propertyDump(obj, useRegex, excludePropList:string[], translationService) {
+    const propertyArr = []
+    const regExArr = []
+    const wrapperDiv = document.createElement('div');
+    if (useRegex) {
+      _.each(excludePropList, (ex) => {
+        regExArr.push(new RegExp(ex));
+      });
+    }
+    _.forOwn(obj, (propVal, propName) => {
+      let excluded = false;
+      if (useRegex) {
+        _.each(regExArr, (ex) => {
+          if (propName.search(ex) != -1) {
+            excluded = true;
+            return false;
+          }
+        });
+      } else {
+        excluded = _.includes(excludePropList, propName);
+      }
+
+      if (!excluded) {
+        if (_.isArray(propVal)) {
+          const vArr = []
+          _.each(propVal, (v) => {
+            wrapperDiv.innerHTML = v;
+            vArr.push(`<li>${wrapperDiv.innerHTML}</li>`)
+          });
+          wrapperDiv.innerHTML = `<ul>${vArr.join(' ')}</ul>`
+        } else {
+          wrapperDiv.innerHTML = propVal;
+        }
+        propertyArr.push(`<p><span class='h6'>${translationService.t(propName)}:</span>${wrapperDiv.innerHTML}</p>`)
+      }
+    });
+    return propertyArr.join(' ');
+  }
+
 }

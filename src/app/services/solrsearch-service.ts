@@ -52,7 +52,7 @@ export class SolrSearchService implements SearchService {
     const start = searchParam.start;
     const rows = searchParam.rows;
 
-    const configSearch = this.config[recordType];
+    const configSearch = this.config[recordType] || this.config['default'];
     const qflist = [];
     _.each(configSearch.queryFields, (qf) => {
       qflist.push(`${qf}:${configSearch.queryFieldValPrefix}${searchText == '*' ? searchText : luceneEscapeQuery.escape(searchText)}${configSearch.queryFieldValSuffix}`);
@@ -81,7 +81,8 @@ export class SolrSearchService implements SearchService {
         rows: rows,
         fieldList: configSearch.fieldList,
         queryFields: qflist.length > 0 ? `${qflist.join(configSearch.queryFieldsBoolOperator)}` : '',
-        facetFields: facetList.length > 0 ? `&facet=true&${facetList.join('&')}` : ''
+        facetFields: facetList.length > 0 ? `&facet=true&${facetList.join('&')}` : '',
+        type: luceneEscapeQuery.escape(recordType)
       }
     }
     const url = `${configSearch.solrUrl}${_.template(configSearch.mainQuery, opts)()}`;
@@ -151,6 +152,7 @@ export class SolrSearchResult implements SearchResult {
   start:number;
   results: any[];
   facets: SearchFacet[];
+  facetGroupNames: string[];
 
   constructor(httpResp: any, params: SearchParams) {
     // parse the SOLR response
@@ -168,10 +170,12 @@ export class SolrSearchResult implements SearchResult {
           if (facet_field_name  == params.groupSearchRefinersBy) {
             mainFacet = new SolrFacet(facet_field_name, values)
             this.facets.push(mainFacet);
+            this.facetGroupNames = [];
             for (var i=0; i < facet_field_val.length; ) {
               const facet_val = facet_field_val[i++];
               const facet_count = facet_field_val[i++];
               mainFacet.addGroup(facet_val, facet_count);
+              this.facetGroupNames.push(facet_val);
             }
             return false;
           }
