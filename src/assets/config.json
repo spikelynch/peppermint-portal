@@ -151,7 +151,7 @@
       {"template": "<p class='h6'><%= translationService.t('id-label') %>: <%= data['id'] %></p>", "class":"text-justify" },
       {"template": "<p class='h6'><%= translationService.t('type-label') %>: <%= utilService.getArrAsLinks(data['type'], '_blank', '<ul>', '</ul>', '<li>', '</li>') %> </p>"},
       {"template": "<p></p>" },
-      {"template": "<p><%= utilService.propertyDump(data, true, ['^type', '^_', '$_str', '^record_', 'id', 'https___schema_org_name', 'https___schema_org_description', 'main_search'], translationService) %> </p>"}
+      {"template": "<p><%= utilService.propertyDump(data, true, ['^type', '^_', '_str$', '_facet$', '_facet_multi$', '^record_', 'id', 'https___schema_org_name', 'https___schema_org_description', 'main_search'], translationService) %> </p>"}
     ]
   }
 }
