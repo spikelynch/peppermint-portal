@@ -251,7 +251,7 @@ export class SearchComponent {
         });
       }
       const templateOpts = {
-        imports: {data: {}, moment: moment, utilService: this.utilService, translationService: this.translationService}
+        imports: {data: {}, moment: moment, utilService: this.utilService, translationService: this.translationService, config: this.config}
       };
       const searchRes = {displayLines: [], res: res, routerLink: '/detail/' + encodeURIComponent(res['id'])};
       _.assign(templateOpts.imports.data, res);
@@ -314,8 +314,8 @@ export class SearchComponent {
     return groupByConfig && groupByConfig.value &&  !_.isEmpty(groupByConfig.value) && !_.isArray(groupByConfig.value);
   }
 
-  shouldBreak(refinerConfig, max) {
-    return ((refinerConfig.facetCtr++) % max) == 0;
+  shouldBreak(index, max) {
+    return (index % max) == 0;
   }
 
   getSearchRecordTypeLabel(rType:string) {

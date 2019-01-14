@@ -145,13 +145,16 @@
     "rows": 10,
     "paginationSize": 10,
     "maxGroupedResultsCount": 5,
+    "propertyDumpExceptionList": ["^type", "^_", "_str$", "_facet$","_facet_multi$", "^record_", "id", "https___schema_org_name", "https___schema_org_description", "main_search"],
+    "propertyDumpRecurse": true,
+    "propertyDumpRecurseExceptionList": ["^type", "^_", "_str$", "_facet$","_facet_multi$", "^record_", "main_search"],
     "searchResultDisplay": [
       {"template": "<p class='h4 text-white bg-secondary p-3'><%= data['https___schema_org_name'] %></p>", "class":"text-justify" },
       {"template": "<p><%= data['https___schema_org_description'] %></p>",  "class":"text-justify" },
       {"template": "<p class='h6'><%= translationService.t('id-label') %>: <%= data['id'] %></p>", "class":"text-justify" },
       {"template": "<p class='h6'><%= translationService.t('type-label') %>: <%= utilService.getArrAsLinks(data['type'], '_blank', '<ul>', '</ul>', '<li>', '</li>') %> </p>"},
       {"template": "<p></p>" },
-      {"template": "<p><%= utilService.propertyDump(data, true, ['^type', '^_', '_str$', '_facet$', '_facet_multi$', '^record_', 'id', 'https___schema_org_name', 'https___schema_org_description', 'main_search'], translationService) %> </p>"}
+      {"template": "<p><%= utilService.propertyDump(data, true, config.default.propertyDumpExceptionList, translationService, config.default.propertyDumpRecurse, config.default.propertyDumpRecurseExceptionList) %> </p>"}
     ]
   }
 }

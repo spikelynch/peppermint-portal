@@ -54,7 +54,6 @@ export class SearchRefiner {
   typeLabel: string;
   activeValue: any;
   targetRecordType: string;
-  facetCtr: number = 0;
 
   constructor(opts: any = {}) {
     this.name = opts.name;

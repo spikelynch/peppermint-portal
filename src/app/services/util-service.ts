@@ -48,7 +48,7 @@ export class UtilService {
     return `${wrapperPrefix}${linkArr.join(' ')}${wrapperSuffix}`;
   }
 
-  propertyDump(obj, useRegex, excludePropList:string[], translationService) {
+  propertyDump(obj, useRegex, excludePropList:string[], translationService, recursive:boolean=false, recurseExcludePropList: string[]) {
     const propertyArr = []
     const regExArr = []
     const wrapperDiv = document.createElement('div');
@@ -74,17 +74,36 @@ export class UtilService {
         if (_.isArray(propVal)) {
           const vArr = []
           _.each(propVal, (v) => {
+            if (recursive && !_.isNil(v)) {
+              try {
+                const vObj = JSON.parse(v);
+                if (!_.isEmpty(vObj) && !_.isString(vObj)) {
+                  v = this.propertyDump(vObj, useRegex, recurseExcludePropList, translationService, recursive, recurseExcludePropList);
+                }
+              } catch (e) {
+              }
+            }
             wrapperDiv.innerHTML = v;
+            wrapperDiv.innerHTML = this.transformToLink(wrapperDiv.innerHTML);
             vArr.push(`<li>${wrapperDiv.innerHTML}</li>`)
           });
           wrapperDiv.innerHTML = `<ul>${vArr.join(' ')}</ul>`
         } else {
           wrapperDiv.innerHTML = propVal;
+          wrapperDiv.innerHTML = this.transformToLink(wrapperDiv.innerHTML);
         }
-        propertyArr.push(`<p><span class='h6'>${translationService.t(propName)}:</span>${wrapperDiv.innerHTML}</p>`)
+        propertyArr.push(`<p><span class='h6'>${translationService.getFacetHumanLabel(propName)}:</span>${wrapperDiv.innerHTML}</p>`)
       }
     });
     return propertyArr.join(' ');
+  }
+
+  // only transforms link when string starts with a link..
+  transformToLink(htmlVal) {
+    if (htmlVal && _.isString(htmlVal) && htmlVal.trim().indexOf('http') == 0) {
+      return `<a href='${htmlVal}' target='_blank'>${htmlVal}</a>`;
+    }
+    return htmlVal;
   }
 
 }

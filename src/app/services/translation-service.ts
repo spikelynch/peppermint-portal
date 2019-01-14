@@ -85,12 +85,18 @@ export class TranslationService {
 
   getFacetHumanLabel(type: string) {
     let label = type;
-    if (type.indexOf('https___schema_org_') != -1) {
-      label = `schema.org - ${_.startCase(_.trim(_.replace(type, 'https___schema_org_', '')))}`
+    const strReplaceArr = ['https___schema_org_', 'https___pcdm_org_models_', 'https://schema.org/', 'https://pcdm.org/models#' ]
+    let strReplace = null;
+    _.each(strReplaceArr, (str)=> {
+      if (type.indexOf(str) != -1) {
+        strReplace = str;
+        return false;
+      }
+    });
+    if (strReplace) {
+      label = `schema.org - ${_.startCase(_.trim(_.replace(type, strReplace, '')))}`
     }
-    if (type.indexOf('https___pcdm_org_models_') != -1) {
-      label = `pcdm.org - ${_.startCase(_.trim(_.replace(type, 'https___pcdm_org_models_', '')))}`
-    }
+    
     if (label && this.hasKey(label)) {
       return this.t(label);
     }
