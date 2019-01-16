@@ -83,20 +83,28 @@ export class TranslationService {
     return this.t(key) != key;
   }
 
-  getFacetHumanLabel(type: string) {
+  getFacetHumanLabel(type: string, hideSchemaSource: boolean = true ) {
     let label = type;
     const strReplaceArr = ['https___schema_org_', 'https___pcdm_org_models_', 'https://schema.org/', 'https://pcdm.org/models#' ]
+    let schemaSrc = '';
     let strReplace = null;
     _.each(strReplaceArr, (str)=> {
       if (type.indexOf(str) != -1) {
         strReplace = str;
+        if (!hideSchemaSource) {
+          if (strReplace.indexOf('schema.org') || strReplace.indexOf('schema_org')) {
+            schemaSrc = 'schema.org - '
+          } else {
+            schemaSrc = 'pcdm.org - '
+          }
+        }
         return false;
       }
     });
     if (strReplace) {
-      label = `schema.org - ${_.startCase(_.trim(_.replace(type, strReplace, '')))}`
+      label = `${schemaSrc}${_.startCase(_.trim(_.replace(type, strReplace, '')))}`
     }
-    
+
     if (label && this.hasKey(label)) {
       return this.t(label);
     }

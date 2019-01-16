@@ -9,6 +9,7 @@ import { switchMap } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/operator/catch';
 import * as _ from "lodash";
 import * as moment from 'moment';
 
@@ -30,6 +31,8 @@ export class SearchComponent {
   showFacets: boolean = false;
   hideFiltersWhenSearching: boolean = false;
   loadedRecordTypes: boolean = false;
+  invalidSearchText: boolean = false;
+  searchError: boolean = true;
 
   constructor(
     protected translationService: TranslationService,
@@ -47,6 +50,12 @@ export class SearchComponent {
     this.showFacets = !this.showFacets;
   }
 
+  checkSearchText() {
+    if (this.recordType == 'exact') {
+      this.invalidSearchText = this.currentParam.searchText.indexOf(':') == -1;
+    }
+  }
+
   goSearch(rType: any = null) {
     if (rType) {
       this.recordType = rType;
@@ -54,21 +63,24 @@ export class SearchComponent {
     this.router.navigate(['search'], {queryParams: {searchText: this.currentParam.searchText, recordType: this.recordType, rows: this.currentParam.rows, start: this.currentParam.start, refiner: this.currentParam.getRefinerQuery()}} );
   }
 
-  initSearchConfig(recordType, config) {
+  initSearchConfig(recordType, config, exactSearch:boolean = false) {
     const searchParam = new SearchParams(recordType);
     // build the config...
     const configSearch = config[recordType] || config['default'];
-    const searchFilterConfig = [];
-    _.each(configSearch.searchRefiners, (searchConfig:any) => {
-      searchFilterConfig.push(new SearchRefiner(searchConfig));
-    });
-    searchParam.setRefinerConfig(searchFilterConfig);
-    searchParam.paginationSize = configSearch.paginationSize;
     searchParam.rows = configSearch.rows;
-    searchParam.groupSearchRefinersBy = configSearch.groupSearchRefinersBy;
-    searchParam.maxGroupedResultsCount = configSearch.maxGroupedResultsCount;
     searchParam.hideFiltersWhenSearching = configSearch.hideFiltersWhenSearching;
-    this.paramMap[recordType] = searchParam;
+    if (!exactSearch) {
+      const searchFilterConfig = [];
+      _.each(configSearch.searchRefiners, (searchConfig:any) => {
+        searchFilterConfig.push(new SearchRefiner(searchConfig));
+      });
+      searchParam.setRefinerConfig(searchFilterConfig);
+      searchParam.paginationSize = configSearch.paginationSize;
+      searchParam.groupSearchRefinersBy = configSearch.groupSearchRefinersBy;
+      searchParam.maxGroupedResultsCount = configSearch.maxGroupedResultsCount;
+      this.paramMap[recordType] = searchParam;
+    }
+    return searchParam;
   }
 
   initRecordTypes() {
@@ -109,8 +121,12 @@ export class SearchComponent {
     }
     this.route.queryParamMap.pipe(
       switchMap((params: ParamMap) => {
+        this.invalidSearchText = false;
+        this.searchError = false;
+
         const searchText = _.trim(params.get('searchText'));
-        if (!_.isEmpty(searchText) && !_.isEmpty(params.get('recordType'))) {
+        this.recordType = params.get('recordType');
+        if (!_.isEmpty(searchText) && !_.isEmpty(this.recordType) && this.recordType != 'exact') {
           this.recordType = params.get('recordType');
           const configSearch = this.getRecordTypeConfig();
           this.updateParamWithType();
@@ -124,30 +140,40 @@ export class SearchComponent {
           // setting state when there's no active search
           if (_.isEmpty(params.get('recordType'))) {
             this.recordType = this.config.recordTypes[0]
-          } else {
-            this.recordType = params.get('recordType');
           }
           if (_.isUndefined(this.paramMap) || _.isUndefined(this.paramMap[this.recordType])) {
             this.initSearchConfig(this.recordType, this.config);
           }
           this.currentParam = this.paramMap[this.recordType];
+          if (this.recordType != 'exact') {
+            return this.doBrowseFacets();
+          } else {
+            this.currentParam = this.initSearchConfig(this.recordType, this.config, true);
+            if (!_.isEmpty(searchText)) {
+              this.currentParam.searchText = searchText;
+              return this.getSearchExact();
+            } else {
+              return Observable.of(null);
+            }
+          }
         }
-        return this.doBrowseFacets();
       }
     )).subscribe(res => {
       this.searchResults = res;
-      if (this.currentParam.showResult) {
-        if (this.searchResults && this.searchResults.numFound > 0) {
-          this.searchCardClass = 'text-center bg-success search-panel';
-          this.currentParam.setFacetValues(this.searchResults.facets);
+      if (this.searchResults) {
+        if (this.currentParam.showResult) {
+          if (this.searchResults && this.searchResults.numFound > 0) {
+            this.searchCardClass = 'text-center bg-success search-panel';
+            this.currentParam.setFacetValues(this.searchResults.facets);
+          } else {
+            this.searchCardClass = 'text-center bg-warning search-panel';
+          }
+          this.hideFiltersWhenSearching = this.currentParam.hideFiltersWhenSearching;
         } else {
-          this.searchCardClass = 'text-center bg-warning search-panel';
+          this.currentParam.setFacetValues(this.searchResults.facets);
+          this.currentParam.searchText = '';
+          this.currentParam.rows = this.config[this.config.recordTypes[0]].rows;
         }
-        this.hideFiltersWhenSearching = this.currentParam.hideFiltersWhenSearching;
-      } else {
-        this.currentParam.setFacetValues(this.searchResults.facets);
-        this.currentParam.searchText = '';
-        this.currentParam.rows = this.config[this.config.recordTypes[0]].rows;
       }
     });
   }
@@ -177,6 +203,26 @@ export class SearchComponent {
       console.log(data);
       this.isSearching = false;
       return Observable.of(data);
+    });
+  }
+
+  getSearchExact() {
+    this.currentParam.showResult = true;
+    this.isSearching = true;
+    this.currentParam.showResult = true;
+    this.showFacets = false;
+    return this.searchService.searchExact(this.currentParam).flatMap((res:any) => {
+        const data = this.searchService.extractData(res, null, this.currentParam);
+        console.log(data);
+        this.isSearching = false;
+        return Observable.of(data);
+    })
+    .catch( (e) => {
+      console.error("Failed to search by field!")
+      console.error(e)
+      this.searchError = true;
+      this.isSearching = false;
+      return Observable.of(null);
     });
   }
 

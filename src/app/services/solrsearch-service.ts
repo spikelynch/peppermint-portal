@@ -46,6 +46,28 @@ export class SolrSearchService implements SearchService {
     });
   }
 
+  public searchExact(searchParam: SearchParams) {
+
+    const q = searchParam.searchText.substring(0, searchParam.searchText.indexOf(':'));
+    const qVal = searchParam.searchText.substring(searchParam.searchText.indexOf(':')+1);
+    const searchText = `${q}:${luceneEscapeQuery.escape(qVal)}`;
+    const start = searchParam.start;
+    const rows = searchParam.rows;
+
+    const configSearch = this.config[searchParam.recordType] || this.config['exact'];
+
+    const opts = {
+      imports: {
+        start: start,
+        rows: rows,
+        queryFields: searchText
+      }
+    }
+    const url = `${configSearch.solrUrl}${_.template(configSearch.mainQuery, opts)()}`;
+    console.log(url);
+    return this.http.get(url);
+  }
+
   public search(searchParam: SearchParams) {
     const searchText = searchParam.searchText;
     const recordType = searchParam.recordType;

@@ -1,6 +1,7 @@
 {
   "recordTypes": [
-    "all"
+    "all",
+    "exact"
   ],
   "all": {
     "solrUrl": "http://localhost:8980/",
@@ -135,6 +136,7 @@
   "default": {
     "solrUrl": "http://localhost:8980/",
     "mainQuery": "?q=type_______facet_multi:<%= type %> AND (<%= queryFields %>)<%= fieldList %>,[child%20parentFilter=type:<%= type %>]&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
+    "exactQuery": "?q=<%= queryFields %>&rows=<%= rows %>&start=<%= start %>",
     "queryFieldsBoolOperator": " OR ",
     "queryFieldValPrefix": "",
     "queryFieldValSuffix": "",
@@ -145,6 +147,23 @@
     "rows": 10,
     "paginationSize": 10,
     "maxGroupedResultsCount": 5,
+    "propertyDumpExceptionList": ["^type", "^_", "_str$", "_facet$","_facet_multi$", "^record_", "id", "https___schema_org_name", "https___schema_org_description", "main_search"],
+    "propertyDumpRecurse": true,
+    "propertyDumpRecurseExceptionList": ["^type", "^_", "_str$", "_facet$","_facet_multi$", "^record_", "main_search"],
+    "searchResultDisplay": [
+      {"template": "<p class='h4 text-white bg-secondary p-3'><%= data['https___schema_org_name'] %></p>", "class":"text-justify" },
+      {"template": "<p><%= data['https___schema_org_description'] %></p>",  "class":"text-justify" },
+      {"template": "<p class='h6'><%= translationService.t('id-label') %>: <%= utilService.transformToLink(data['id']) %></p>", "class":"text-justify" },
+      {"template": "<p class='h6'><%= translationService.t('type-label') %>: <%= utilService.getArrAsLinks(data['type'], '_blank', '<ul>', '</ul>', '<li>', '</li>') %> </p>"},
+      {"template": "<p></p>" },
+      {"template": "<p><%= utilService.propertyDump(data, true, config.default.propertyDumpExceptionList, translationService, config.default.propertyDumpRecurse, config.default.propertyDumpRecurseExceptionList) %> </p>"}
+    ]
+  },
+  "exact": {
+    "solrUrl": "http://localhost:8980/",
+    "mainQuery": "?q=<%= queryFields %>&rows=<%= rows %>&start=<%= start %>",
+    "fieldList": "&fl=*",
+    "rows": 10,
     "propertyDumpExceptionList": ["^type", "^_", "_str$", "_facet$","_facet_multi$", "^record_", "id", "https___schema_org_name", "https___schema_org_description", "main_search"],
     "propertyDumpRecurse": true,
     "propertyDumpRecurseExceptionList": ["^type", "^_", "_str$", "_facet$","_facet_multi$", "^record_", "main_search"],

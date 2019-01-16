@@ -2,9 +2,9 @@
   <div class="col-md-1"></div>
   <div class="col-md-10">
     <div class="input-group mb-3">
-      <input [(ngModel)]="currentParam.searchText" type="text" class="form-control" [attr.aria-label]="'search-text' | translate" [attr.placeholder]="'search-text' | translate" (keyup.enter)="goSearch()">
+      <input [(ngModel)]="currentParam.searchText" type="text" class="form-control" [attr.aria-label]="'search-text' | translate" [attr.placeholder]="'search-text' | translate" (keyup.enter)="goSearch()" (keyup)="checkSearchText()">
       <div class="input-group-append">
-        <button [disabled]="isSearching || !currentParam.searchText" [innerHTML]="getSearchRecordTypeLabel(recordType)" (click)="goSearch()" class="btn btn-outline-secondary" type="submit"></button>
+        <button [disabled]="isSearching || !currentParam.searchText || invalidSearchText" [innerHTML]="getSearchRecordTypeLabel(recordType)" (click)="goSearch()" class="btn btn-outline-secondary" type="submit"></button>
         <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
            <span class="sr-only">Toggle Search Type</span>
          </button>
@@ -12,6 +12,12 @@
           <button *ngFor="let rType of config.recordTypes" class="dropdown-item" (click)="setRecordType(rType)" [innerHTML]="getSearchRecordTypeLabel(rType)"></button>
         </div>
       </div>
+    </div>
+    <div *ngIf="searchError" class="alert alert-danger" role="alert">
+      {{ 'search-error' | translate}}
+    </div>
+    <div *ngIf="invalidSearchText" class="alert alert-danger" role="alert">
+      {{ 'invalid-search-text' | translate}}
     </div>
   </div>
   <div class="col-md-1"></div>

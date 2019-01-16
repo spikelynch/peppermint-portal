@@ -43,6 +43,7 @@ export interface SearchResult {
 export interface SearchService {
   search(param:SearchParams): Observable<any>;
   extractData(res: Response, parentField: any, params: SearchParams): SearchResult;
+  searchExact(param:SearchParams): Observable<any>;
 }
 
 export class SearchRefiner {
