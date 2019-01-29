@@ -160,6 +160,12 @@ export class SearchParams {
   }
 
   parseRefiner(queryStr:string) {
+    // clear existing refiners...
+    _.remove(this.activeRefiners, refiner => {
+      refiner.value = null;
+      refiner.activeValue = null;
+      return !refiner.alwaysActive;
+    });
     queryStr = decodeURI(queryStr);
     let refinerValues = {};
     _.forEach(queryStr.split(';'), (q)=> {

@@ -3,20 +3,8 @@
 Discovery portal for [Peppermint](https://github.com/redbox-mint/peppermint).
 
 ## Architecture
-```
-                                                      +-------------------+
-                                                      |                   |
-                                                      | Peppermint Portal |
-                                                      |                   |
-                                                      +--------+----------+
-                                                               |
-                                                               |
-+---------------------+         +--------------+      +--------v----------+
-|                     |         |              |      |                   |
-|  Source of Truth    +--------->  Peppermint  +------>    Search Index   |
-|                     |         |              |      |      (SOLR)       |
-+---------------------+         +--------------+      +-------------------+
-```
+
+See [Peppermint](https://github.com/redbox-mint/peppermint).
 
 ## Running
 

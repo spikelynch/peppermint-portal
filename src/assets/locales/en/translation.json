@@ -2,7 +2,7 @@
   "title": "Peppermint",
   "search-text": "Keyword(s)",
   "search-all": "Search All",
-  "search-exact": "Search by field name",
+  "search-exact": "Search by ID",
   "search-error": "There was an error while running your search, please check your query.",
   "invalid-search-text": "Your search query format is invalid.",
   "search-https://schema.org/Dataset": "Search Dataset",
@@ -27,5 +27,6 @@
   "https___schema_org_birthPlace_______https___schema_org_Person_______facet": "Birth Place",
   "https___schema_org_birthDate_______https___schema_org_Person_______facet": "Birth Date",
   "id-label": "ID",
-  "type-label": "Type"
+  "type-label": "Type",
+  "summary-header": "Summary"
 }

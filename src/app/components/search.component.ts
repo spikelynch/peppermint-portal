@@ -33,6 +33,9 @@ export class SearchComponent {
   loadedRecordTypes: boolean = false;
   invalidSearchText: boolean = false;
   searchError: boolean = true;
+  cardHeader:string;
+  searchLabelStr: string;
+  availableRecordTypes:any;
 
   constructor(
     protected translationService: TranslationService,
@@ -103,6 +106,7 @@ export class SearchComponent {
       _.each(data.facetGroupNames, (fname:string) => {
         this.config.recordTypes.push(fname);
       });
+      this.availableRecordTypes = this.config.recordTypes;
       this.loadedRecordTypes = true;
       sub.unsubscribe();
     });
@@ -126,8 +130,11 @@ export class SearchComponent {
 
         const searchText = _.trim(params.get('searchText'));
         this.recordType = params.get('recordType');
+        this.cardHeader = 'search-results';
+
         if (!_.isEmpty(searchText) && !_.isEmpty(this.recordType) && this.recordType != 'exact') {
           this.recordType = params.get('recordType');
+          this.searchLabelStr = this.getSearchRecordTypeLabel(this.recordType);
           const configSearch = this.getRecordTypeConfig();
           this.updateParamWithType();
           this.currentParam = this.paramMap[this.recordType];
@@ -141,6 +148,7 @@ export class SearchComponent {
           if (_.isEmpty(params.get('recordType'))) {
             this.recordType = this.config.recordTypes[0]
           }
+          this.searchLabelStr = this.getSearchRecordTypeLabel(this.recordType);
           if (_.isUndefined(this.paramMap) || _.isUndefined(this.paramMap[this.recordType])) {
             this.initSearchConfig(this.recordType, this.config);
           }
@@ -150,6 +158,7 @@ export class SearchComponent {
           } else {
             this.currentParam = this.initSearchConfig(this.recordType, this.config, true);
             if (!_.isEmpty(searchText)) {
+              this.cardHeader = 'summary-header';
               this.currentParam.searchText = searchText;
               return this.getSearchExact();
             } else {
@@ -207,7 +216,6 @@ export class SearchComponent {
   }
 
   getSearchExact() {
-    this.currentParam.showResult = true;
     this.isSearching = true;
     this.currentParam.showResult = true;
     this.showFacets = false;
@@ -271,6 +279,7 @@ export class SearchComponent {
     });
     this.configService.getConfig((config) => {
       this.config = config;
+      this.availableRecordTypes = this.config.recordTypes;
       this.startSearch();
     });
   }
@@ -285,10 +294,10 @@ export class SearchComponent {
     const results = [];
     _.each(this.searchResults.results, (res) => {
       const typeVal = this.getFirstElem(res.type);
-      if (this.recordType != typeVal ) {
+      if (this.recordType != "exact" && this.recordType != typeVal ) {
         // keep looping to get a non-default dislay config
         _.each(res.type, (t:string) => {
-          const sConfig = this.config[typeVal];
+          const sConfig = this.config[t];
           displayLineConfig = (sConfig && sConfig.searchResultDisplay) ? sConfig.searchResultDisplay : this.config.default.searchResultDisplay;
           if (displayLineConfig != searchConfig.searchResultDisplay) {
             // stop search

@@ -61,7 +61,8 @@ export class UtilService {
       let excluded = false;
       if (useRegex) {
         _.each(regExArr, (ex) => {
-          if (propName.search(ex) != -1) {
+          const searchHit = propName.search(ex);
+          if (searchHit != -1) {
             excluded = true;
             return false;
           }
@@ -76,7 +77,7 @@ export class UtilService {
           _.each(propVal, (v) => {
             if (recursive && !_.isNil(v)) {
               try {
-                const vObj = JSON.parse(v);
+                const vObj = _.isString(v) ? JSON.parse(v) : v;
                 if (!_.isEmpty(vObj) && !_.isString(vObj)) {
                   v = this.propertyDump(vObj, useRegex, recurseExcludePropList, translationService, recursive, recurseExcludePropList);
                 }

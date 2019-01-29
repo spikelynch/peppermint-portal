@@ -58,4 +58,14 @@ $navbar-light-active-color:   rgba($main-color, .9) !default;
   }
 }
 
+.panel-link-white {
+  a {
+    color: white;
+    &:hover {
+      color: white;
+      text-decoration: none;
+    }
+  }
+}
+
 @import "../node_modules/bootstrap/scss/bootstrap";
