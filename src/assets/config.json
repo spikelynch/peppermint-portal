@@ -75,7 +75,7 @@
     "paginationSize": 10,
     "maxGroupedResultsCount": 5,
     "searchResultDisplay": [
-      {"template": "<p class='h4 text-white bg-secondary p-3 panel-link-white'><a href='search?recordType=exact&searchText=id:<%= data[\"id\"] %>'><%= data['https___schema_org_name'] %></a></p>", "class":"text-justify" },
+      {"template": "<p class='h4 text-white bg-secondary p-3 panel-link-white'><a href='search?recordType=exact&searchText=id:<%= data[\"id\"] %>'><%= _.isEmpty(data['https___schema_org_name']) ? data['id'] : data['https___schema_org_name'] %></a></p>", "class":"text-justify" },
       {"template": "<p><%= data['https___schema_org_description'] %></p>",  "class":"text-justify" }
     ]
   },
@@ -88,7 +88,7 @@
     "propertyDumpRecurse": true,
     "propertyDumpRecurseExceptionList": ["^type", "^_", "_str$", "_facet$","_facet_multi$", "^record_", "main_search", "_orig$", "_Orig$"],
     "searchResultDisplay": [
-      {"template": "<p class='h4 text-white bg-secondary p-3'><%= data['https___schema_org_name'] %></p>", "class":"text-justify" },
+      {"template": "<p class='h4 text-white bg-secondary p-3'><%= _.isEmpty(data['https___schema_org_name']) ? data['id'] : data['https___schema_org_name'] %></p>", "class":"text-justify" },
       {"template": "<p><%= data['https___schema_org_description'] %></p>",  "class":"text-justify" },
       {"template": "<p class='h6'><%= translationService.t('id-label') %>: <%= utilService.transformToLink(data['id']) %></p>", "class":"text-justify" },
       {"template": "<p class='h6'><%= translationService.t('type-label') %>: <%= utilService.getArrAsLinks(data['type'], '_blank', '<ul>', '</ul>', '<li>', '</li>') %> </p>"},
