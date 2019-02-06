@@ -68,7 +68,7 @@
           <!-- Ungrouped -->
           <div id="ungrouped-filter" class="row container-fluid" *ngIf="!isGrouped(currentParam.getRefinerConfigs()) else groupedBlock">
             <ng-container *ngFor="let refinerConfig of currentParam.getRefinerConfigs(); index as i; first as isFirst;">
-              <div class="col">
+              <div class="col" *ngIf="shouldShowRefiner(refinerConfig)">
                 <search-refiner [classes]="'h-100'" [isSearching]="isSearching" [refinerConfig]="refinerConfig" (onApplyFilter)="applyRefiner($event)" ></search-refiner>
               </div>
               <ng-container *ngIf="shouldBreak(index+1, 4)">

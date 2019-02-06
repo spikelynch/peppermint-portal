@@ -60,6 +60,80 @@
       }
     ]
   },
+  "https___schema_org_Person": {
+    "solrUrl": "http://localhost:8980/",
+    "mainQuery": "?q=type_______facet_multi:<%= type %> AND (<%= queryFields %>)<%= fieldList %>&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
+    "exactQuery": "?q=<%= queryFields %>&rows=<%= rows %>&start=<%= start %>",
+    "queryFieldsBoolOperator": " OR ",
+    "queryFieldValPrefix": "",
+    "queryFieldValSuffix": "",
+    "queryFields": [
+      "main_search"
+    ],
+    "fieldList": "&fl=*",
+    "rows": 10,
+    "paginationSize": 10,
+    "maxGroupedResultsCount": 5,
+    "searchResultDisplay": [
+      {"template": "<p class='h4 text-white bg-secondary p-3 panel-link-white'><a href='search?recordType=exact&searchText=id:<%= data[\"id\"] %>'><%= _.isEmpty(data['https___schema_org_name']) ? data['id'] : data['https___schema_org_name'] %></a></p>", "class":"text-justify" },
+      {"template": "<p><%= data['https___schema_org_description'] %></p>",  "class":"text-justify" }
+    ],
+    "searchRefiners": [
+      {
+        "name": "https___schema_org_birthPlace_______https___schema_org_Person_______facet",
+        "title": "search-refine-birthPlace",
+        "type": "facet",
+        "typeLabel": null,
+        "alwaysActive": true,
+        "targetRecordType": "https___schema_org_Person"
+      },
+      {
+        "name": "https___schema_org_birthDate_______https___schema_org_Person_______facet",
+        "title": "search-refine-birthDate",
+        "type": "facet",
+        "typeLabel": null,
+        "alwaysActive": true,
+        "targetRecordType": "https___schema_org_Person"
+      }
+    ]
+  },
+  "https___schema_org_Dataset": {
+    "solrUrl": "http://localhost:8980/",
+    "mainQuery": "?q=type_______facet_multi:<%= type %> AND (<%= queryFields %>)<%= fieldList %>&rows=<%= rows %>&start=<%= start %><%= facetFields %>",
+    "exactQuery": "?q=<%= queryFields %>&rows=<%= rows %>&start=<%= start %>",
+    "queryFieldsBoolOperator": " OR ",
+    "queryFieldValPrefix": "",
+    "queryFieldValSuffix": "",
+    "queryFields": [
+      "main_search"
+    ],
+    "fieldList": "&fl=*",
+    "rows": 10,
+    "paginationSize": 10,
+    "maxGroupedResultsCount": 5,
+    "searchResultDisplay": [
+      {"template": "<p class='h4 text-white bg-secondary p-3 panel-link-white'><a href='search?recordType=exact&searchText=id:<%= data[\"id\"] %>'><%= _.isEmpty(data['https___schema_org_name']) ? data['id'] : data['https___schema_org_name'] %></a></p>", "class":"text-justify" },
+      {"template": "<p><%= data['https___schema_org_description'] %></p>",  "class":"text-justify" }
+    ],
+    "searchRefiners": [
+      {
+        "name": "https___schema_org_keywords_______https___schema_org_Dataset_______facet_multi",
+        "title": "search-refine-keywords",
+        "type": "facet",
+        "typeLabel": null,
+        "alwaysActive": true,
+        "targetRecordType": "https___schema_org_Dataset"
+      },
+      {
+        "name": "https___schema_org_publisher_______https___schema_org_Dataset_______facet",
+        "title": "search-refine-publisher",
+        "type": "facet",
+        "typeLabel": null,
+        "alwaysActive": true,
+        "targetRecordType": "https___schema_org_Dataset"
+      }
+    ]
+  },
   "default": {
     "solrUrl": "http://localhost:8980/",
     "mainQuery": "?q=type_______facet_multi:<%= type %> AND (<%= queryFields %>)<%= fieldList %>&rows=<%= rows %>&start=<%= start %><%= facetFields %>",

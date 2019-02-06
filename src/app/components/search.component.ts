@@ -380,6 +380,10 @@ export class SearchComponent {
     }
     return `Search ${this.translationService.getFacetHumanLabel(rType)}`;
   }
+
+  shouldShowRefiner(refinerConfig: SearchRefiner) {
+    return refinerConfig && !_.isEmpty(refinerConfig.value)
+  }
   //
   // getBreadcrumb() {
   //   const crumbs = [];
