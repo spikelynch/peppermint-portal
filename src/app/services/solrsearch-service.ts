@@ -144,12 +144,13 @@ export class SolrFacet implements SearchFacet {
     this.value[name] = {name: name, groupCount: count, childFacets: {}};
   }
 
-  addToGroup(facetname, facetVal, facetCount) {
-    if (_.isUndefined(facetname) || _.isUndefined(facetVal) || _.isUndefined(facetCount) ) {
+  addToGroup(facetName, facetVal, facetCount) {
+  	console.log(`addToGroup ${facetName} ${facetVal} ${facetCount}`);
+    if (_.isUndefined(facetName) || _.isUndefined(facetVal) || _.isUndefined(facetCount) ) {
       return;
     }
     // derive the group name using the facet name
-    const nameParts = facetname.split('_______');
+    const nameParts = facetName.split('_');
     if (nameParts && nameParts.length == 2) {
       // add to all groups
       const solrFacetVal = new SolrFacetValue(facetVal, facetCount)
@@ -158,10 +159,10 @@ export class SolrFacet implements SearchFacet {
       });
     } else {
       // add only to the group
-      if (_.isEmpty(this.value[nameParts[1]].childFacets[facetname])) {
-        this.value[nameParts[1]].childFacets[facetname] = new SolrFacet(facetname, []);
+      if (_.isEmpty(this.value[nameParts[1]].childFacets[facetName])) {
+        this.value[nameParts[1]].childFacets[facetName] = new SolrFacet(facetName, []);
       }
-      this.value[nameParts[1]].childFacets[facetname].value.push(new SolrFacetValue(facetVal, facetCount))
+      this.value[nameParts[1]].childFacets[facetName].value.push(new SolrFacetValue(facetVal, facetCount))
     }
   }
 
