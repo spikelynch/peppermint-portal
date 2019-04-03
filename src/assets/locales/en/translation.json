@@ -13,7 +13,7 @@
   "search-refine-keywords": "Keywords",
   "search-refine-apply-filter": "Go",
   "search-refine-publisher": "Publisher",
-  "search-refine-publisher": "Contributor",
+  "search-refine-creator": "Creators",
   "search-refine-funders": "Funders",
   "search-refine-birthPlace": "Birth Place",
   "search-refine-birthDate": "Birth Date",
@@ -25,7 +25,7 @@
   "schema.org - Dataset": "schema.org - Dataset",
   "keywords_Dataset_facetmulti": "Keywords",
   "publisher_Dataset_facet": "Publishers",
-  "Person_Dataset_facet": "Contributors",
+  "creator_Dataset_facetmulti": "Contributors",
   "id-label": "ID",
   "type-label": "Type",
   "summary-header": "Summary"

@@ -35,8 +35,8 @@
         "targetRecordType": "Dataset"
       },
       {
-        "name": "Person_Dataset_facetmulti",
-        "title": "search-refine-person",
+        "name": "creator_Dataset_facetmulti",
+        "title": "search-refine-creator",
         "type": "facet",
         "typeLabel": null,
         "alwaysActive": true,
@@ -101,8 +101,8 @@
         "targetRecordType": "Dataset"
       },
       {
-        "name": "Person_Dataset_facetmulti",
-        "title": "search-refine-person",
+        "name": "creator_Dataset_facetmulti",
+        "title": "search-refine-creator",
         "type": "facet",
         "typeLabel": null,
         "alwaysActive": true,
